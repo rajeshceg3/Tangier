@@ -2,6 +2,7 @@
 import { createWindNode } from './wind';
 import { createSeaNode } from './sea';
 import { playFerryHorn } from './horn';
+import { playFootstep } from './footsteps';
 
 export const setupAudio = (context) => {
   const wind = createWindNode(context);
@@ -12,6 +13,7 @@ export const setupAudio = (context) => {
     wind: wind.node,
     sea: sea.node,
     playHorn: () => playFerryHorn(context),
+    triggerFootstep: (volume) => playFootstep(context, volume),
     // Example control methods
     setWindVolume: (volume) => {
       wind.node.gain.setTargetAtTime(volume, context.currentTime, 0.1);

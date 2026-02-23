@@ -8,7 +8,13 @@
 - **Interaction:** Implemented scroll-based progression to drive both visual and audio changes.
 - **Verification:** Verified frontend rendering and ensuring no visible UI chrome or loading states.
 
-**Current Completion:** ~90%
-- Core experience is functional.
-- Audio and Visuals are implemented procedurally.
-- Pending: Fine-tuning of audio textures (footsteps) and more detailed architectural assets if needed.
+## Session 2: Audio Refinement
+- **Footsteps:** Implemented procedural footstep generation in `src/audio/footsteps.js`.
+  - Uses filtered noise bursts with envelope control.
+  - Added delay/echo to simulate stone alley acoustics.
+  - Integrated into main scroll logic to trigger footsteps based on distance traveled in the Medina section.
+- **Verification:** Verified audio orchestration and interaction logic.
+
+**Current Completion:** ~95%
+- Core experience + Audio Textures are functional.
+- Pending: Final polish and comprehensive testing.

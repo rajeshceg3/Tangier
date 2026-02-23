@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useScroll } from 'framer-motion';
 import Horizon from './components/Horizon';
 import MedinaLayers from './components/MedinaLayers';
@@ -7,7 +7,8 @@ import { setupAudio } from './audio';
 
 export default function App() {
   const [audioControls, setAudioControls] = useState(null);
-  const { scrollYProgress } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
+  const lastStepY = useRef(0);
 
   useEffect(() => {
     const handleInteraction = async () => {
@@ -43,7 +44,7 @@ export default function App() {
   useEffect(() => {
     if (!audioControls) return;
 
-    const unsubscribe = scrollYProgress.on("change", (latest) => {
+    const unsubscribeProgress = scrollYProgress.on("change", (latest) => {
       // Wind: Strongest at top (0) and bottom (1), quieter in Medina (0.3-0.7)
       // Modulation: 0.05 min to 0.2 max
       const windIntensity = 0.05 + (Math.abs(latest - 0.5) * 0.15);
@@ -64,8 +65,25 @@ export default function App() {
       }
     });
 
-    return () => unsubscribe();
-  }, [audioControls, scrollYProgress]);
+    const unsubscribeScroll = scrollY.on("change", (latestY) => {
+      const dist = Math.abs(latestY - lastStepY.current);
+      // Trigger step every ~150px
+      if (dist > 150) {
+        const progress = scrollYProgress.get();
+        // Footsteps only in the Medina (roughly 15% to 85%)
+        if (progress > 0.15 && progress < 0.85) {
+          const vol = 0.2 + Math.random() * 0.3;
+          audioControls.triggerFootstep(vol);
+          lastStepY.current = latestY;
+        }
+      }
+    });
+
+    return () => {
+      unsubscribeProgress();
+      unsubscribeScroll();
+    };
+  }, [audioControls, scrollY, scrollYProgress]);
 
   return (
     <div className="relative w-full h-[800vh] bg-chalk-white overflow-hidden">
