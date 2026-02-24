@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useScroll } from 'framer-motion';
+import { useScroll, AnimatePresence, motion as Motion } from 'framer-motion';
 import Horizon from './components/Horizon';
 import MedinaLayers from './components/MedinaLayers';
 import NarrativeOverlay from './components/NarrativeOverlay';
@@ -9,6 +9,17 @@ export default function App() {
   const [audioControls, setAudioControls] = useState(null);
   const { scrollY, scrollYProgress } = useScroll();
   const lastStepY = useRef(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeout = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Initial "Light Gathering" loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 seconds of "gathering light"
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleInteraction = async () => {
@@ -66,6 +77,13 @@ export default function App() {
     });
 
     const unsubscribeScroll = scrollY.on("change", (latestY) => {
+      // Handle isScrolling state
+      setIsScrolling(true);
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+      scrollTimeout.current = setTimeout(() => {
+        setIsScrolling(false);
+      }, 300); // 300ms pause to consider "lingering"
+
       const dist = Math.abs(latestY - lastStepY.current);
       // Trigger step every ~150px
       if (dist > 150) {
@@ -82,6 +100,7 @@ export default function App() {
     return () => {
       unsubscribeProgress();
       unsubscribeScroll();
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     };
   }, [audioControls, scrollY, scrollYProgress]);
 
@@ -89,10 +108,22 @@ export default function App() {
     <div className="relative w-full h-[800vh] bg-chalk-white overflow-hidden">
       <Horizon />
       <MedinaLayers />
-      <NarrativeOverlay />
+      <NarrativeOverlay isScrolling={isScrolling} />
 
       {/* Invisible overlay for texture/tint */}
       <div className="fixed inset-0 z-50 pointer-events-none bg-black/5 mix-blend-overlay"></div>
+
+      {/* Light Gathering Overlay */}
+      <AnimatePresence>
+        {isLoading && (
+          <Motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2.5, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] bg-[#fdfbf7] pointer-events-none" // Using chalk-white equivalent
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
