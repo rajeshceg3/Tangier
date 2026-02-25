@@ -37,13 +37,11 @@ export default function MedinaLayers() {
       <Motion.div
         style={{ y: y3 }}
         className="absolute -left-10 bottom-0 w-1/3 h-[80vh] bg-chalk-white/90 backdrop-blur-md shadow-2xl skew-y-2 origin-bottom-left border-r border-white/50"
-      >
-      </Motion.div>
+      />
       <Motion.div
         style={{ y: y3 }}
         className="absolute -right-10 bottom-0 w-1/4 h-[90vh] bg-chalk-white/90 backdrop-blur-md shadow-2xl -skew-y-1 origin-bottom-right border-l border-white/50"
-      >
-      </Motion.div>
+      />
     </div>
   );
 }

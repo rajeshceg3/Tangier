@@ -17,11 +17,13 @@ const NarrativeItem = ({ item, isScrolling }) => {
     item.type === 'faint' ? 'text-sm text-pale-atlantic-blue tracking-widest uppercase' :
     item.type === 'marginalia' ? 'text-xs text-muted-indigo italic border-l border-soft-dusk-amber pl-4' :
     item.type === 'heading' ? 'text-2xl text-muted-indigo font-light tracking-[0.2em] uppercase' :
+    item.type === 'emphasis' ? 'text-xl text-muted-indigo font-normal leading-relaxed' :
     'text-lg text-muted-indigo font-light leading-relaxed'; // body
 
   // Target opacity based on type (removed opacity classes from textClasses to control here)
   const targetOpacity = item.type === 'faint' ? 0.6 :
-                        item.type === 'marginalia' ? 0.7 : 1;
+                        item.type === 'marginalia' ? 0.7 :
+                        item.type === 'emphasis' ? 1 : 1;
 
   // Only show if in view AND not scrolling (lingering)
   const show = isInView && !isScrolling;

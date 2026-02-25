@@ -5,6 +5,10 @@ import MedinaLayers from './components/MedinaLayers';
 import NarrativeOverlay from './components/NarrativeOverlay';
 import { setupAudio } from './audio';
 
+const LIGHT_GATHERING_DURATION_MS = 2000;
+const LINGER_TIMEOUT_MS = 300;
+const OVERLAY_FADE_DURATION_S = 2.5;
+
 export default function App() {
   const [audioControls, setAudioControls] = useState(null);
   const { scrollY, scrollYProgress } = useScroll();
@@ -17,7 +21,7 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // 2 seconds of "gathering light"
+    }, LIGHT_GATHERING_DURATION_MS); // 2 seconds of "gathering light"
     return () => clearTimeout(timer);
   }, []);
 
@@ -82,7 +86,7 @@ export default function App() {
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
       scrollTimeout.current = setTimeout(() => {
         setIsScrolling(false);
-      }, 300); // 300ms pause to consider "lingering"
+      }, LINGER_TIMEOUT_MS); // 300ms pause to consider "lingering"
 
       const dist = Math.abs(latestY - lastStepY.current);
       // Trigger step every ~150px
@@ -119,8 +123,8 @@ export default function App() {
           <Motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 2.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] bg-[#fdfbf7] pointer-events-none" // Using chalk-white equivalent
+            transition={{ duration: OVERLAY_FADE_DURATION_S, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] bg-chalk-white pointer-events-none" // Using chalk-white equivalent
           />
         )}
       </AnimatePresence>
