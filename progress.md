@@ -15,6 +15,12 @@
   - Integrated into main scroll logic to trigger footsteps based on distance traveled in the Medina section.
 - **Verification:** Verified audio orchestration and interaction logic.
 
-**Current Completion:** ~95%
-- Core experience + Audio Textures are functional.
-- Pending: Final polish and comprehensive testing.
+## Session 3: Refinement & Atmosphere
+- **"Linger" Interaction:** Implemented `isScrolling` logic in `App.jsx` and updated `NarrativeOverlay` to only reveal text when the user stops scrolling (lingers), fulfilling the "Presence" requirement.
+- **Visual Polish:** Enhanced `MedinaLayers` with gradients, backdrop blurs, and softer shadows to match the "Light" aesthetic.
+- **Startup Sequence:** Added a "Light Gathering" initial overlay that fades out to reveal the horizon, replacing the abrupt start.
+- **Verification:** Verified compilation and code structure.
+
+**Current Completion:** 100%
+- All core and atmospheric requirements from PRD are implemented.
+- The experience now includes the subtle interaction and visual language specified.
