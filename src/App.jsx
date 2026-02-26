@@ -108,6 +108,32 @@ export default function App() {
     };
   }, [audioControls, scrollY, scrollYProgress]);
 
+  // Ambient Gulls - Sparse and distant
+  useEffect(() => {
+    if (!audioControls) return;
+
+    let timer;
+    const loop = () => {
+      // 10 to 25 seconds between potential calls
+      const delay = 10000 + Math.random() * 15000;
+      timer = setTimeout(() => {
+        const progress = scrollYProgress.get();
+        // Higher probability near the sea (bottom)
+        const chance = 0.3 + (progress * 0.4);
+
+        if (Math.random() < chance) {
+          // Volume increases slightly near sea
+          const vol = 0.05 + (progress * 0.1) + (Math.random() * 0.05);
+          audioControls.playGull(vol);
+        }
+        loop();
+      }, delay);
+    };
+
+    loop();
+    return () => clearTimeout(timer);
+  }, [audioControls, scrollYProgress]);
+
   return (
     <div className="relative w-full h-[800vh] bg-chalk-white overflow-hidden">
       <Horizon />

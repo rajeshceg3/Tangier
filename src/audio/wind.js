@@ -31,20 +31,32 @@ export const createWindNode = (context) => {
   const gain = context.createGain();
   gain.gain.value = 0; // Start silent
 
+  // Directional Wind: Add Stereo Panner
+  const panner = context.createStereoPanner();
+  panner.pan.value = 0.2; // Initial slight offset
+
   noise.connect(filter);
   filter.connect(gain);
-  gain.connect(context.destination);
+  gain.connect(panner);
+  panner.connect(context.destination);
 
   noise.start();
 
-  // Modulate filter for "gusts"
+  // Modulate filter for "gusts" and slight pan shift
   const modulateWind = () => {
     const time = context.currentTime;
-    // Simple LFO simulation using ramping
+    // Simple LFO simulation using ramping for filter
     filter.frequency.exponentialRampToValueAtTime(
       200 + Math.random() * 600,
       time + 2 + Math.random() * 3
     );
+
+    // Slow pan drift
+    panner.pan.linearRampToValueAtTime(
+      (Math.random() * 2 - 1) * 0.3, // Drift within +/- 0.3
+      time + 5 + Math.random() * 5
+    );
+
     setTimeout(modulateWind, (2 + Math.random() * 3) * 1000);
   };
 
