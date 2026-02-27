@@ -134,6 +134,37 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [audioControls, scrollYProgress]);
 
+  // Ambient Call to Prayer - Very rare, distant
+  useEffect(() => {
+    if (!audioControls) return;
+
+    let timer;
+    const loop = () => {
+      // 45 to 90 seconds between potential calls (very rare)
+      const delay = 45000 + Math.random() * 45000;
+      timer = setTimeout(() => {
+        // Uniform probability across the city, maybe less at sea
+        const progress = scrollYProgress.get();
+        // Higher probability in the Medina (middle)
+        // 0.2 to 0.8 is Medina roughly.
+        let chance = 0.1;
+        if (progress > 0.2 && progress < 0.8) {
+            chance = 0.4;
+        }
+
+        if (Math.random() < chance) {
+          // Faint, distant
+          const vol = 0.1 + (Math.random() * 0.05);
+          audioControls.playPrayer(vol);
+        }
+        loop();
+      }, delay);
+    };
+
+    loop();
+    return () => clearTimeout(timer);
+  }, [audioControls, scrollYProgress]);
+
   return (
     <div className="relative w-full h-[800vh] bg-chalk-white overflow-hidden">
       <Horizon />
