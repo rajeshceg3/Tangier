@@ -31,13 +31,29 @@ const NarrativeItem = ({ item, isScrolling }) => {
   return (
     <Motion.div
       ref={ref}
-      className={`absolute max-w-xs ${textClasses}`}
+      className={`absolute max-w-xs ${textClasses} cursor-default pointer-events-auto`}
       style={style}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: show ? targetOpacity : 0, y: show ? 0 : 20 }}
       transition={{ duration: 1.5, ease: "easeOut" }}
+      whileHover="hover"
     >
-      {item.text}
+      <span className="relative inline-block group">
+        {item.text}
+
+        {/* Annotation Tooltip */}
+        {item.annotation && (
+          <Motion.span
+            className="absolute top-full left-0 mt-2 w-max max-w-xs text-[10px] leading-tight text-pale-atlantic-blue font-serif italic opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out pointer-events-none"
+            initial={{ opacity: 0, y: 5 }}
+            variants={{
+                hover: { opacity: 0.8, y: 0, transition: { duration: 1, ease: "easeOut" } }
+            }}
+          >
+            {item.annotation}
+          </Motion.span>
+        )}
+      </span>
     </Motion.div>
   );
 };

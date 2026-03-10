@@ -5,7 +5,7 @@ import MedinaLayers from './components/MedinaLayers';
 import NarrativeOverlay from './components/NarrativeOverlay';
 import { setupAudio } from './audio';
 
-const LIGHT_GATHERING_DURATION_MS = 2000;
+const LIGHT_GATHERING_DURATION_MS = 4000;
 const LINGER_TIMEOUT_MS = 300;
 const OVERLAY_FADE_DURATION_S = 2.5;
 
@@ -181,8 +181,18 @@ export default function App() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: OVERLAY_FADE_DURATION_S, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] bg-chalk-white pointer-events-none" // Using chalk-white equivalent
-          />
+            className="fixed inset-0 z-[100] bg-chalk-white pointer-events-none flex items-center justify-center"
+          >
+            <Motion.h1
+              initial={{ opacity: 0, letterSpacing: "0.1em" }}
+              animate={{ opacity: 1, letterSpacing: "0.8em" }}
+              exit={{ opacity: 0, letterSpacing: "1em" }}
+              transition={{ duration: 3, ease: "easeInOut" }}
+              className="text-muted-indigo font-light text-2xl uppercase ml-[0.8em]" // Added ml to offset tracking on last char
+            >
+              Tangier
+            </Motion.h1>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>
