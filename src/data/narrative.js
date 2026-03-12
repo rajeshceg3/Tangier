@@ -46,21 +46,24 @@ export const narrative = [
     text: 'Phoenician traders.',
     position: 0.65,
     alignment: 'right',
-    type: 'marginalia'
+    type: 'marginalia',
+    annotation: 'They called it Tingis. Salt, purple dye, and the very edge of the known world.'
   },
   {
     id: 'history-2',
     text: 'Roman presence.',
     position: 0.68,
     alignment: 'right',
-    type: 'marginalia'
+    type: 'marginalia',
+    annotation: 'Mauretania Tingitana. Imperial outposts built on older stones.'
   },
   {
     id: 'history-3',
     text: 'International Zone intrigue.',
     position: 0.71,
     alignment: 'right',
-    type: 'marginalia'
+    type: 'marginalia',
+    annotation: 'Spies, exiles, and artists breathing the same unpoliced air (1924–1956).'
   },
   {
     id: 'strait-1',

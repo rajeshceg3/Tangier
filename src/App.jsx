@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useScroll, AnimatePresence, motion as Motion } from 'framer-motion';
+import { useScroll, useMotionValue, useSpring, AnimatePresence, motion as Motion } from 'framer-motion';
 import Horizon from './components/Horizon';
 import MedinaLayers from './components/MedinaLayers';
 import NarrativeOverlay from './components/NarrativeOverlay';
@@ -13,6 +13,22 @@ export default function App() {
   const [audioControls, setAudioControls] = useState(null);
   const { scrollY, scrollYProgress } = useScroll();
   const lastStepY = useRef(0);
+
+  // Mouse tracking for parallax
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { damping: 50, stiffness: 100, mass: 0.5 };
+  const smoothMouseX = useSpring(mouseX, springConfig);
+  const smoothMouseY = useSpring(mouseY, springConfig);
+
+  const handleMouseMove = (e) => {
+    // Normalize coordinates from -1 to 1 based on screen center
+    const x = (e.clientX / window.innerWidth) * 2 - 1;
+    const y = (e.clientY / window.innerHeight) * 2 - 1;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimeout = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -166,9 +182,12 @@ export default function App() {
   }, [audioControls, scrollYProgress]);
 
   return (
-    <div className="relative w-full h-[800vh] bg-chalk-white overflow-hidden">
+    <div
+      className="relative w-full h-[800vh] bg-chalk-white overflow-hidden"
+      onMouseMove={handleMouseMove}
+    >
       <Horizon />
-      <MedinaLayers />
+      <MedinaLayers mouseX={smoothMouseX} mouseY={smoothMouseY} />
       <NarrativeOverlay isScrolling={isScrolling} />
 
       {/* Invisible overlay for texture/tint */}
