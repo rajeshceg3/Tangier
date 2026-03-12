@@ -2,10 +2,24 @@ import { useRef, useState } from 'react';
 import { motion as Motion, useInView, AnimatePresence } from 'framer-motion';
 import { narrative } from '../data/narrative';
 
-const NarrativeItem = ({ item, isScrolling }) => {
+const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { margin: "-10% 0px -10% 0px" }); // Trigger when near center
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    if (hasAnnotation) {
+      setIsHovered(true);
+      if (onHoverChange) onHoverChange(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (hasAnnotation) {
+      setIsHovered(false);
+      if (onHoverChange) onHoverChange(false);
+    }
+  };
 
   const style = {
     top: `${item.position * 100}%`,
@@ -39,8 +53,8 @@ const NarrativeItem = ({ item, isScrolling }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: show ? targetOpacity : 0, y: show ? 0 : 20 }}
       transition={{ duration: 1.5, ease: "easeOut" }}
-      onMouseEnter={() => hasAnnotation && setIsHovered(true)}
-      onMouseLeave={() => hasAnnotation && setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className={`relative ${baseClasses}`}>
         {hasAnnotation ? (
@@ -48,7 +62,11 @@ const NarrativeItem = ({ item, isScrolling }) => {
             <span className="relative z-10 transition-colors duration-500 group-hover:text-muted-indigo">
               {item.text}
             </span>
-            <span className="absolute bottom-0 left-0 w-full h-[1px] bg-soft-dusk-amber/50 opacity-50 transition-opacity duration-500 group-hover:opacity-100" />
+            <Motion.span
+              animate={{ opacity: [0.6, 0.8, 0.6] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-0 left-0 w-full h-[1px] bg-soft-dusk-amber/80 group-hover:opacity-100 transition-opacity duration-500"
+            />
           </span>
         ) : (
           item.text
@@ -73,11 +91,24 @@ const NarrativeItem = ({ item, isScrolling }) => {
 };
 
 export default function NarrativeOverlay({ isScrolling }) {
+  const [isAnyHovered, setIsAnyHovered] = useState(false);
+
   return (
     <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-10" style={{ pointerEvents: 'none' }}>
+      <AnimatePresence>
+        {isAnyHovered && (
+          <Motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="fixed inset-0 bg-chalk-white/10 backdrop-blur-[2px] pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
       {/* We set pointerEvents: 'none' on the container, but allow 'auto' on specific interactive items */}
       {narrative.map(item => (
-        <NarrativeItem key={item.id} item={item} isScrolling={isScrolling} />
+        <NarrativeItem key={item.id} item={item} isScrolling={isScrolling} onHoverChange={setIsAnyHovered} />
       ))}
     </div>
   );
