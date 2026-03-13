@@ -10,11 +10,13 @@ export default function MedinaLayers({ mouseX, mouseY }) {
   const opacity1 = useTransform(scrollYProgress, [0, 0.2], [0, 1]); // Fade in on arrival
   const mouseX1 = useTransform(mouseX, [-1, 1], ['-2%', '2%']);
   const mouseY1 = useTransform(mouseY, [-1, 1], ['-2%', '2%']);
+  const scale1 = useTransform(mouseX, [-1, 1], [0.98, 1.02]);
 
   // Midground: Moves faster
   const y2 = useTransform(scrollYProgress, [0.1, 1], ['100%', '-50%']);
   const mouseX2 = useTransform(mouseX, [-1, 1], ['-5%', '5%']);
   const mouseY2 = useTransform(mouseY, [-1, 1], ['-5%', '5%']);
+  const scale2 = useTransform(mouseX, [-1, 1], [0.95, 1.05]);
 
   // Foreground: Moves fastest (passing by)
   const y3 = useTransform(scrollYProgress, [0.3, 1], ['120%', '-100%']);
@@ -25,13 +27,13 @@ export default function MedinaLayers({ mouseX, mouseY }) {
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Distant Layer: Silhouette against the sky - Soft gradient */}
       <Motion.div
-        style={{ y: y1, x: mouseX1, translateY: mouseY1, opacity: opacity1 }}
+        style={{ y: y1, x: mouseX1, translateY: mouseY1, opacity: opacity1, scale: scale1 }}
         className="absolute bottom-0 w-full h-[60vh] bg-gradient-to-t from-sandstone-beige/40 to-transparent blur-2xl"
       />
 
       {/* Mid Layer: Building blocks - Frosted glass effect */}
       <Motion.div
-        style={{ y: y2, x: mouseX2, translateY: mouseY2 }}
+        style={{ y: y2, x: mouseX2, translateY: mouseY2, scale: scale2 }}
         className="absolute left-10 right-10 bottom-0 h-[40vh] bg-gradient-to-b from-chalk-white/95 to-chalk-white backdrop-blur-sm shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.05)] rounded-t-lg"
       >
           {/* Simple architectural suggestion - soft panels */}
