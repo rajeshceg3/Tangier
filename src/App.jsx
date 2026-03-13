@@ -186,7 +186,7 @@ export default function App() {
       className="relative w-full h-[800vh] bg-chalk-white overflow-hidden"
       onMouseMove={handleMouseMove}
     >
-      <Horizon />
+      <Horizon mouseX={smoothMouseX} mouseY={smoothMouseY} />
       <MedinaLayers mouseX={smoothMouseX} mouseY={smoothMouseY} />
       <NarrativeOverlay isScrolling={isScrolling} />
 
