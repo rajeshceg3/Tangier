@@ -59,7 +59,7 @@ const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
       <div className={`relative ${baseClasses}`}>
         {hasAnnotation ? (
           <span className="relative inline-block group">
-            <span className="relative z-10 transition-colors duration-500 group-hover:text-muted-indigo">
+            <span className="relative z-10 transition-colors duration-500 group-hover:text-muted-indigo border-b border-soft-dusk-amber/50 animate-pulse group-hover:animate-none group-hover:border-soft-dusk-amber/100">
               {item.text}
             </span>
             <Motion.span
