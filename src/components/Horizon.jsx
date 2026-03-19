@@ -1,6 +1,6 @@
 import { motion as Motion, useScroll, useTransform } from 'framer-motion';
 
-export default function Horizon({ mouseX, mouseY }) {
+export default function Horizon({ mouseX, mouseY, lingerMs }) {
   const { scrollYProgress } = useScroll();
 
   // Sky color transition from pale (dawn/haze) to blue (midday/strait)
@@ -21,6 +21,7 @@ export default function Horizon({ mouseX, mouseY }) {
   const rotateZ = useTransform(mouseX, [-1, 1], [-2, 2]); // Tilty horizon
   const x = useTransform(mouseX, [-1, 1], ['-2%', '2%']); // Pan horizontally
   const y = useTransform(mouseY, [-1, 1], ['-2%', '2%']); // Shift slightly vertically
+  const horizonGlow = Math.min(lingerMs / 9000, 1) * 0.35;
 
   return (
     <Motion.div
@@ -32,9 +33,17 @@ export default function Horizon({ mouseX, mouseY }) {
         className="absolute top-1/2 left-[-10%] right-[-10%] h-[200vh] bg-gradient-to-b from-transparent to-white/20 origin-top pointer-events-none"
         style={{
           rotate: rotateZ,
-          x: x,
-          y: y
+          x,
+          y
         }}
+      />
+
+      {/* Linger glow to reward stillness without adding visible UI */}
+      <Motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{ opacity: horizonGlow }}
+        transition={{ duration: 1.2, ease: 'easeOut' }}
+        style={{ background: 'radial-gradient(circle at 50% 40%, rgba(220,191,166,0.35), transparent 65%)' }}
       />
 
       {/* Distant Sea Line */}
