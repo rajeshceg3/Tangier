@@ -1,6 +1,6 @@
 import { motion as Motion, useScroll, useTransform } from 'framer-motion';
 
-export default function MedinaLayers({ mouseX, mouseY }) {
+export default function MedinaLayers({ mouseX, mouseY, lingerMs }) {
   const { scrollYProgress } = useScroll();
 
   // Parallax layers simulating descent through the city
@@ -22,6 +22,8 @@ export default function MedinaLayers({ mouseX, mouseY }) {
   const y3 = useTransform(scrollYProgress, [0.3, 1], ['120%', '-100%']);
   const mouseX3 = useTransform(mouseX, [-1, 1], ['-10%', '10%']);
   const mouseY3 = useTransform(mouseY, [-1, 1], ['-10%', '10%']);
+
+  const lingerDustOpacity = Math.min(lingerMs / 9000, 1) * 0.35;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -49,6 +51,19 @@ export default function MedinaLayers({ mouseX, mouseY }) {
       <Motion.div
         style={{ y: y3, x: mouseX3, translateY: mouseY3 }}
         className="absolute -right-10 bottom-0 w-1/4 h-[90vh] bg-gradient-to-l from-chalk-white to-chalk-white/90 backdrop-blur-md shadow-2xl -skew-y-1 origin-bottom-right border-l border-white/50"
+      />
+
+      {/* Subtle atmospheric texture emerges when lingering in place */}
+      <Motion.div
+        className="absolute inset-0"
+        animate={{ opacity: lingerDustOpacity }}
+        transition={{ duration: 1.4, ease: 'easeOut' }}
+        style={{
+          backgroundImage:
+            'radial-gradient(rgba(59,77,97,0.08) 0.5px, transparent 0.5px), radial-gradient(rgba(220,191,166,0.07) 0.5px, transparent 0.5px)',
+          backgroundPosition: '0 0, 12px 12px',
+          backgroundSize: '24px 24px'
+        }}
       />
     </div>
   );

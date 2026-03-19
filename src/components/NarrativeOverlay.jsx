@@ -2,9 +2,9 @@ import { useRef, useState } from 'react';
 import { motion as Motion, useInView, AnimatePresence } from 'framer-motion';
 import { narrative } from '../data/narrative';
 
-const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
+const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { margin: "-10% 0px -10% 0px" }); // Trigger when near center
+  const isInView = useInView(ref, { margin: '-10% 0px -10% 0px' }); // Trigger when near center
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseEnter = () => {
@@ -42,6 +42,8 @@ const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
                         item.type === 'marginalia' ? 0.7 :
                         item.type === 'emphasis' ? 1 : 1;
 
+  const lingerBoost = Math.min(lingerMs / 9000, 1) * 0.12;
+
   // Only show if in view AND not scrolling (lingering)
   const show = isInView && !isScrolling;
 
@@ -51,8 +53,8 @@ const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
       className={`absolute max-w-xs ${hasAnnotation ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
       style={style}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: show ? targetOpacity : 0, y: show ? 0 : 20 }}
-      transition={{ duration: 1.5, ease: "easeOut" }}
+      animate={{ opacity: show ? Math.min(targetOpacity + lingerBoost, 1) : 0, y: show ? 0 : 20 }}
+      transition={{ duration: 1.5, ease: 'easeOut' }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -64,7 +66,7 @@ const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
             </span>
             <Motion.span
               animate={{ opacity: [0.6, 0.8, 0.6] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
               className="absolute bottom-0 left-0 w-full h-[1px] bg-soft-dusk-amber/80 group-hover:opacity-100 transition-opacity duration-500"
             />
           </span>
@@ -78,7 +80,7 @@ const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
               initial={{ opacity: 0, y: 10, filter: 'blur(2px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: 5, filter: 'blur(2px)' }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
               className="absolute left-0 mt-3 p-3 text-xs italic font-light leading-relaxed text-muted-indigo bg-chalk-white/80 backdrop-blur-md rounded-sm border border-sandstone-beige/50 shadow-sm z-20 w-48 pointer-events-none"
             >
               {item.annotation}
@@ -90,7 +92,7 @@ const NarrativeItem = ({ item, isScrolling, onHoverChange }) => {
   );
 };
 
-export default function NarrativeOverlay({ isScrolling }) {
+export default function NarrativeOverlay({ isScrolling, lingerMs }) {
   const [isAnyHovered, setIsAnyHovered] = useState(false);
 
   return (
@@ -101,14 +103,20 @@ export default function NarrativeOverlay({ isScrolling }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+            transition={{ duration: 0.8, ease: 'easeInOut' }}
             className="fixed inset-0 bg-chalk-white/10 backdrop-blur-[2px] pointer-events-none"
           />
         )}
       </AnimatePresence>
       {/* We set pointerEvents: 'none' on the container, but allow 'auto' on specific interactive items */}
       {narrative.map(item => (
-        <NarrativeItem key={item.id} item={item} isScrolling={isScrolling} onHoverChange={setIsAnyHovered} />
+        <NarrativeItem
+          key={item.id}
+          item={item}
+          isScrolling={isScrolling}
+          lingerMs={lingerMs}
+          onHoverChange={setIsAnyHovered}
+        />
       ))}
     </div>
   );

@@ -3,6 +3,7 @@ import { useScroll, useMotionValue, useSpring, AnimatePresence, motion as Motion
 import Horizon from './components/Horizon';
 import MedinaLayers from './components/MedinaLayers';
 import NarrativeOverlay from './components/NarrativeOverlay';
+import PresenceFieldNote from './components/PresenceFieldNote';
 import { setupAudio } from './audio';
 
 const LIGHT_GATHERING_DURATION_MS = 2000;
@@ -13,6 +14,7 @@ export default function App() {
   const [audioControls, setAudioControls] = useState(null);
   const { scrollY, scrollYProgress } = useScroll();
   const lastStepY = useRef(0);
+  const [zoneProgress, setZoneProgress] = useState(0);
 
   // Mouse tracking for parallax
   const mouseX = useMotionValue(0);
@@ -32,6 +34,7 @@ export default function App() {
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimeout = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [lingerMs, setLingerMs] = useState(0);
 
   // Initial "Light Gathering" loading state
   useEffect(() => {
@@ -40,6 +43,20 @@ export default function App() {
     }, LIGHT_GATHERING_DURATION_MS); // 2 seconds of "gathering light"
     return () => clearTimeout(timer);
   }, []);
+
+  // Linger tracking: reward stillness with deeper reveals
+  useEffect(() => {
+    if (isScrolling) {
+      setLingerMs(0);
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      setLingerMs((prev) => Math.min(prev + 150, 9000));
+    }, 150);
+
+    return () => clearInterval(interval);
+  }, [isScrolling]);
 
   useEffect(() => {
     const handleInteraction = async () => {
@@ -75,11 +92,14 @@ export default function App() {
   useEffect(() => {
     if (!audioControls) return;
 
-    const unsubscribeProgress = scrollYProgress.on("change", (latest) => {
+    const unsubscribeProgress = scrollYProgress.on('change', (latest) => {
+      setZoneProgress(latest);
+
       // Wind: Strongest at top (0) and bottom (1), quieter in Medina (0.3-0.7)
       // Modulation: 0.05 min to 0.2 max
       const windIntensity = 0.05 + (Math.abs(latest - 0.5) * 0.15);
-      audioControls.setWindVolume(windIntensity);
+      const stillnessLift = isScrolling ? 0 : Math.min(lingerMs / 9000, 0.05);
+      audioControls.setWindVolume(windIntensity + stillnessLift);
 
       // Sea: Silent at top, grows as we descend (starts at 0.5, max at 1.0)
       const seaVol = latest > 0.5 ? (latest - 0.5) * 0.4 : 0;
@@ -92,11 +112,11 @@ export default function App() {
 
       // Occasional Horn at the Strait (near bottom)
       if (latest > 0.8 && Math.random() > 0.995) {
-         audioControls.playHorn();
+        audioControls.playHorn();
       }
     });
 
-    const unsubscribeScroll = scrollY.on("change", (latestY) => {
+    const unsubscribeScroll = scrollY.on('change', (latestY) => {
       // Handle isScrolling state
       setIsScrolling(true);
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
@@ -122,7 +142,7 @@ export default function App() {
       unsubscribeScroll();
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     };
-  }, [audioControls, scrollY, scrollYProgress]);
+  }, [audioControls, scrollY, scrollYProgress, isScrolling, lingerMs]);
 
   // Ambient Gulls - Sparse and distant
   useEffect(() => {
@@ -165,7 +185,7 @@ export default function App() {
         // 0.2 to 0.8 is Medina roughly.
         let chance = 0.1;
         if (progress > 0.2 && progress < 0.8) {
-            chance = 0.4;
+          chance = 0.4;
         }
 
         if (Math.random() < chance) {
@@ -186,9 +206,10 @@ export default function App() {
       className="relative w-full h-[800vh] bg-chalk-white overflow-hidden"
       onMouseMove={handleMouseMove}
     >
-      <Horizon mouseX={smoothMouseX} mouseY={smoothMouseY} />
-      <MedinaLayers mouseX={smoothMouseX} mouseY={smoothMouseY} />
-      <NarrativeOverlay isScrolling={isScrolling} />
+      <Horizon mouseX={smoothMouseX} mouseY={smoothMouseY} lingerMs={lingerMs} />
+      <MedinaLayers mouseX={smoothMouseX} mouseY={smoothMouseY} lingerMs={lingerMs} />
+      <NarrativeOverlay isScrolling={isScrolling} lingerMs={lingerMs} />
+      <PresenceFieldNote lingerMs={lingerMs} zone={zoneProgress} />
 
       {/* Invisible overlay for texture/tint */}
       <div className="fixed inset-0 z-50 pointer-events-none bg-black/5 mix-blend-overlay"></div>
@@ -199,7 +220,7 @@ export default function App() {
           <Motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: OVERLAY_FADE_DURATION_S, ease: "easeInOut" }}
+            transition={{ duration: OVERLAY_FADE_DURATION_S, ease: 'easeInOut' }}
             className="fixed inset-0 z-[100] bg-chalk-white pointer-events-none" // Using chalk-white equivalent
           />
         )}
