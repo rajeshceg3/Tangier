@@ -31,11 +31,11 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
   const hasAnnotation = !!item.annotation;
 
   const baseClasses =
-    item.type === 'faint' ? 'text-sm text-pale-atlantic-blue tracking-widest uppercase' :
-    item.type === 'marginalia' ? 'text-xs text-muted-indigo italic border-l border-soft-dusk-amber pl-4' :
-    item.type === 'heading' ? 'text-2xl text-muted-indigo font-light tracking-[0.2em] uppercase' :
-    item.type === 'emphasis' ? 'text-xl text-muted-indigo font-normal leading-relaxed' :
-    'text-lg text-muted-indigo font-light leading-relaxed'; // body
+    item.type === 'faint' ? 'text-sm text-[#275c8f] tracking-widest uppercase font-medium' :
+    item.type === 'marginalia' ? 'text-xs text-muted-indigo italic border-l-2 border-soft-dusk-amber pl-4' :
+    item.type === 'heading' ? 'text-2xl text-muted-indigo font-medium tracking-[0.2em] uppercase' :
+    item.type === 'emphasis' ? 'text-xl text-muted-indigo font-semibold leading-relaxed' :
+    'text-lg text-muted-indigo font-normal leading-relaxed'; // body
 
   // Target opacity based on type (removed opacity classes from baseClasses to control here)
   const targetOpacity = item.type === 'faint' ? 0.6 :
@@ -61,7 +61,7 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
       <div className={`relative ${baseClasses}`}>
         {hasAnnotation ? (
           <span className="relative inline-block group">
-            <span className="relative z-10 transition-colors duration-500 group-hover:text-muted-indigo border-b border-soft-dusk-amber/50 animate-pulse group-hover:animate-none group-hover:border-soft-dusk-amber/100">
+            <span className="relative z-10 transition-colors duration-500 group-hover:text-[#0f2940] border-b-2 border-soft-dusk-amber/70 animate-pulse group-hover:animate-none group-hover:border-soft-dusk-amber">
               {item.text}
             </span>
             <Motion.span
@@ -81,7 +81,7 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: 5, filter: 'blur(2px)' }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="absolute left-0 mt-3 p-3 text-xs italic font-light leading-relaxed text-muted-indigo bg-chalk-white/80 backdrop-blur-md rounded-sm border border-sandstone-beige/50 shadow-sm z-20 w-48 pointer-events-none"
+              className="absolute left-0 mt-3 p-3 text-xs italic font-normal leading-relaxed text-muted-indigo bg-chalk-white/95 backdrop-blur-md rounded-sm border border-sandstone-beige/80 shadow-sm z-20 w-48 pointer-events-none"
             >
               {item.annotation}
             </Motion.div>
@@ -104,7 +104,7 @@ export default function NarrativeOverlay({ isScrolling, lingerMs }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: 'easeInOut' }}
-            className="fixed inset-0 bg-chalk-white/10 backdrop-blur-[2px] pointer-events-none"
+            className="fixed inset-0 bg-chalk-white/20 backdrop-blur-[2px] pointer-events-none"
           />
         )}
       </AnimatePresence>
