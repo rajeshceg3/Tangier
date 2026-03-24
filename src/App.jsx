@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useScroll, useMotionValue, useSpring, AnimatePresence, motion as Motion } from 'framer-motion';
+import { useScroll, useMotionValue, useSpring, AnimatePresence, motion as Motion, useReducedMotion } from 'framer-motion';
 import Horizon from './components/Horizon';
 import MedinaLayers from './components/MedinaLayers';
 import NarrativeOverlay from './components/NarrativeOverlay';
@@ -15,12 +15,15 @@ export default function App() {
   const { scrollY, scrollYProgress } = useScroll();
   const lastStepY = useRef(0);
   const [zoneProgress, setZoneProgress] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
 
   // Mouse tracking for parallax
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const springConfig = { damping: 50, stiffness: 100, mass: 0.5 };
+  const springConfig = prefersReducedMotion
+    ? { damping: 80, stiffness: 240, mass: 0.9 }
+    : { damping: 50, stiffness: 100, mass: 0.5 };
   const smoothMouseX = useSpring(mouseX, springConfig);
   const smoothMouseY = useSpring(mouseY, springConfig);
 
@@ -35,6 +38,15 @@ export default function App() {
   const scrollTimeout = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [lingerMs, setLingerMs] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [inactiveMs, setInactiveMs] = useState(0);
+  const lastInteractionAt = useRef(0);
+
+  const markInteraction = () => {
+    lastInteractionAt.current = Date.now();
+    setInactiveMs(0);
+    setHasInteracted(true);
+  };
 
   // Initial "Light Gathering" loading state
   useEffect(() => {
@@ -47,7 +59,6 @@ export default function App() {
   // Linger tracking: reward stillness with deeper reveals
   useEffect(() => {
     if (isScrolling) {
-      setLingerMs(0);
       return undefined;
     }
 
@@ -57,6 +68,15 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, [isScrolling]);
+
+  useEffect(() => {
+    lastInteractionAt.current = Date.now();
+    const interval = setInterval(() => {
+      setInactiveMs(Date.now() - lastInteractionAt.current);
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleInteraction = async () => {
@@ -90,6 +110,22 @@ export default function App() {
   }, [audioControls]);
 
   useEffect(() => {
+    const handleWindowMove = () => markInteraction();
+    const handleWindowScroll = () => markInteraction();
+    const handleWindowKeyDown = () => markInteraction();
+
+    window.addEventListener('mousemove', handleWindowMove);
+    window.addEventListener('scroll', handleWindowScroll);
+    window.addEventListener('keydown', handleWindowKeyDown);
+
+    return () => {
+      window.removeEventListener('mousemove', handleWindowMove);
+      window.removeEventListener('scroll', handleWindowScroll);
+      window.removeEventListener('keydown', handleWindowKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!audioControls) return;
 
     const unsubscribeProgress = scrollYProgress.on('change', (latest) => {
@@ -119,6 +155,7 @@ export default function App() {
     const unsubscribeScroll = scrollY.on('change', (latestY) => {
       // Handle isScrolling state
       setIsScrolling(true);
+      setLingerMs(0);
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
       scrollTimeout.current = setTimeout(() => {
         setIsScrolling(false);
@@ -204,12 +241,20 @@ export default function App() {
   return (
     <div
       className="relative w-full h-[800vh] bg-chalk-white overflow-hidden"
-      onMouseMove={handleMouseMove}
+      onMouseMove={(e) => {
+        handleMouseMove(e);
+        markInteraction();
+      }}
     >
       <Horizon mouseX={smoothMouseX} mouseY={smoothMouseY} lingerMs={lingerMs} />
       <MedinaLayers mouseX={smoothMouseX} mouseY={smoothMouseY} lingerMs={lingerMs} />
       <NarrativeOverlay isScrolling={isScrolling} lingerMs={lingerMs} />
-      <PresenceFieldNote lingerMs={lingerMs} zone={zoneProgress} />
+      <PresenceFieldNote
+        lingerMs={lingerMs}
+        zone={zoneProgress}
+        hasInteracted={hasInteracted}
+        inactiveMs={inactiveMs}
+      />
 
       {/* Invisible overlay for texture/tint */}
       <div className="fixed inset-0 z-50 pointer-events-none bg-black/5 mix-blend-overlay"></div>
