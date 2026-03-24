@@ -1,5 +1,37 @@
 # Tangier — The Threshold Between Worlds: A UX Transformation
 
+## Absolute-Yes Experience Standard
+
+If the answer to “Is this the absolute delightful and joyful experience possible for a user to have?” must be an unqualified **yes**, the experience has to satisfy all of these conditions together:
+
+1. **Immediate trust in the first second**  
+   The interface proves it is alive instantly (motion, response, clarity) without noisy instructions.
+
+2. **Effortless agency**  
+   Every user action (scroll, hover, pause, keyboard focus) receives a graceful, legible response.
+
+3. **Compounding delight**  
+   Curiosity and stillness continuously unlock richer atmosphere; delight cannot plateau after the first reveal.
+
+4. **Zero-friction accessibility**  
+   Joy must be available to more users: reduced-motion sensitivity, keyboard discoverability, and predictable behavior.
+
+5. **Emotional continuity**  
+   The tone can deepen, but must not break. No abrupt transitions, dead states, or attention hijacks.
+
+6. **Contextual guidance without clutter**  
+   Guidance appears as atmosphere (field notes/whispers), not controls, so users never feel managed.
+
+7. **Reliability across behavior modes**  
+   Idle users, exploratory users, and power users all receive coherent feedback; no one should feel lost.
+
+### Implementation implications applied
+
+- Add adaptive guidance for idle/non-interacting moments so the opening never feels inert.
+- Preserve stillness-based reveal mechanics while layering in ambient “absolute yes” cues.
+- Ensure annotation discovery works for keyboard focus in addition to hover.
+- Respect reduced-motion preferences while keeping the environment responsive.
+
 ## PART 1 — First Principles UX Analysis
 
 **Curiosity**

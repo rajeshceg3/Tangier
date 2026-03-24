@@ -20,6 +20,8 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
       if (onHoverChange) onHoverChange(false);
     }
   };
+  const handleFocus = handleMouseEnter;
+  const handleBlur = handleMouseLeave;
 
   const style = {
     top: `${item.position * 100}%`,
@@ -60,7 +62,14 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
     >
       <div className={`relative ${baseClasses}`}>
         {hasAnnotation ? (
-          <span className="relative inline-block group">
+          <span
+            className="relative inline-block group focus:outline-none focus-visible:ring-2 focus-visible:ring-soft-dusk-amber/60 rounded-[2px]"
+            role="button"
+            tabIndex={0}
+            aria-label={`${item.text} — reveal historical annotation`}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          >
             <span className="relative z-10 transition-colors duration-500 group-hover:text-[#0f2940] border-b-2 border-soft-dusk-amber/70 animate-pulse group-hover:animate-none group-hover:border-soft-dusk-amber">
               {item.text}
             </span>
