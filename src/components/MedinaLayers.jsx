@@ -30,17 +30,17 @@ export default function MedinaLayers({ mouseX, mouseY, lingerMs }) {
       {/* Distant Layer: Silhouette against the sky - Soft gradient */}
       <Motion.div
         style={{ y: y1, x: mouseX1, translateY: mouseY1, opacity: opacity1, scale: scale1 }}
-        className="absolute bottom-0 w-full h-[60vh] bg-gradient-to-t from-sandstone-beige/40 to-transparent blur-2xl"
+        className="absolute bottom-0 w-full h-[60vh] bg-gradient-to-t from-sandstone-beige/55 to-transparent blur-2xl"
       />
 
       {/* Mid Layer: Building blocks - Frosted glass effect */}
       <Motion.div
         style={{ y: y2, x: mouseX2, translateY: mouseY2, scale: scale2 }}
-        className="absolute left-10 right-10 bottom-0 h-[40vh] bg-gradient-to-b from-chalk-white/95 to-chalk-white backdrop-blur-sm shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.05)] rounded-t-lg"
+        className="absolute left-10 right-10 bottom-0 h-[40vh] bg-gradient-to-b from-chalk-white/95 to-chalk-white backdrop-blur-sm shadow-[0_-20px_60px_-15px_rgba(30,54,81,0.15)] rounded-t-lg"
       >
           {/* Simple architectural suggestion - soft panels */}
-          <div className="absolute top-10 left-10 w-20 h-32 bg-muted-indigo/5 rounded-sm blur-[2px]" />
-          <div className="absolute top-20 right-20 w-32 h-40 bg-muted-indigo/5 rounded-sm blur-[2px]" />
+          <div className="absolute top-10 left-10 w-20 h-32 bg-muted-indigo/10 rounded-sm blur-[2px]" />
+          <div className="absolute top-20 right-20 w-32 h-40 bg-muted-indigo/10 rounded-sm blur-[2px]" />
       </Motion.div>
 
       {/* Foreground Layer: Passing walls - Softer edges, less heavy */}
@@ -60,7 +60,7 @@ export default function MedinaLayers({ mouseX, mouseY, lingerMs }) {
         transition={{ duration: 1.4, ease: 'easeOut' }}
         style={{
           backgroundImage:
-            'radial-gradient(rgba(59,77,97,0.08) 0.5px, transparent 0.5px), radial-gradient(rgba(220,191,166,0.07) 0.5px, transparent 0.5px)',
+            'radial-gradient(rgba(30,54,81,0.1) 0.5px, transparent 0.5px), radial-gradient(rgba(255,159,67,0.1) 0.5px, transparent 0.5px)',
           backgroundPosition: '0 0, 12px 12px',
           backgroundSize: '24px 24px'
         }}

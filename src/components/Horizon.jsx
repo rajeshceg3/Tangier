@@ -7,7 +7,7 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
   const skyColor = useTransform(
     scrollYProgress,
     [0, 0.5, 1],
-    ['#fdfbf7', '#dcbfa6', '#aabbc3'] // chalk -> amber -> blue
+    ['#fffaf0', '#ffb86b', '#5ca2e0'] // chalk -> vibrant amber -> coastal blue
   );
 
   // Sea level rise (or just presence)
@@ -43,12 +43,12 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
         className="absolute inset-0 pointer-events-none"
         animate={{ opacity: horizonGlow }}
         transition={{ duration: 1.2, ease: 'easeOut' }}
-        style={{ background: 'radial-gradient(circle at 50% 40%, rgba(220,191,166,0.35), transparent 65%)' }}
+        style={{ background: 'radial-gradient(circle at 50% 40%, rgba(255,159,67,0.4), transparent 65%)' }}
       />
 
       {/* Distant Sea Line */}
       <Motion.div
-        className="absolute bottom-0 left-0 right-0 h-1/3 bg-pale-atlantic-blue opacity-50 blur-sm pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-1/3 bg-pale-atlantic-blue opacity-60 blur-sm pointer-events-none"
         style={{ opacity: seaOpacity }}
       />
     </Motion.div>

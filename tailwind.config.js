@@ -7,11 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        'chalk-white': '#fdfbf7',
-        'muted-indigo': '#3b4d61',
-        'sandstone-beige': '#e6dfcf',
-        'pale-atlantic-blue': '#aabbc3',
-        'soft-dusk-amber': '#dcbfa6',
+        'chalk-white': '#fffaf0',
+        'muted-indigo': '#1e3651',
+        'sandstone-beige': '#f2d3a1',
+        'pale-atlantic-blue': '#4f8fc8',
+        'soft-dusk-amber': '#ff9f43',
       },
       fontFamily: {
         sans: ['"Inter"', 'sans-serif'], // Placeholder for Humanist sans-serif
