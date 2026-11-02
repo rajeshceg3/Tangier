@@ -13,13 +13,14 @@ export default function MedinaLayers({ mouseX, mouseY, lingerMs }) {
   const scale1 = useTransform(mouseX, [-1, 1], [0.98, 1.02]);
 
   // Midground: Moves faster
-  const y2 = useTransform(scrollYProgress, [0.1, 1], ['100%', '-50%']);
+  // The city must finish passing before the strait: exit fully by ~0.85
+  const y2 = useTransform(scrollYProgress, [0.1, 0.85, 1], ['100%', '-350%', '-350%']);
   const mouseX2 = useTransform(mouseX, [-1, 1], ['-5%', '5%']);
   const mouseY2 = useTransform(mouseY, [-1, 1], ['-5%', '5%']);
   const scale2 = useTransform(mouseX, [-1, 1], [0.95, 1.05]);
 
   // Foreground: Moves fastest (passing by)
-  const y3 = useTransform(scrollYProgress, [0.3, 1], ['120%', '-100%']);
+  const y3 = useTransform(scrollYProgress, [0.3, 0.85, 1], ['120%', '-190%', '-190%']);
   const mouseX3 = useTransform(mouseX, [-1, 1], ['-10%', '10%']);
   const mouseY3 = useTransform(mouseY, [-1, 1], ['-10%', '10%']);
 

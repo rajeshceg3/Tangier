@@ -240,7 +240,7 @@ export default function App() {
 
   return (
     <div
-      className="relative w-full h-[800vh] bg-chalk-white overflow-hidden"
+      className="relative w-full h-[800vh] overflow-hidden"
       onMouseMove={(e) => {
         handleMouseMove(e);
         markInteraction();

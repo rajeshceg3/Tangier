@@ -1,4 +1,5 @@
-import { motion as Motion, useScroll, useTransform } from 'framer-motion';
+import { useState } from 'react';
+import { motion as Motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 
 const STAR_PATHS = [
   'M18 24L36 15L54 24L45 38L27 38Z',
@@ -18,7 +19,13 @@ const RIDGE_PATHS = [
 export default function Horizon({ mouseX, mouseY, lingerMs }) {
   const { scrollYProgress } = useScroll();
 
-  const skyColor = useTransform(scrollYProgress, [0, 0.45, 1], ['#fffaf0', '#f3b56e', '#4f8fd2']);
+  // Light arc: pale dawn, gathering gold, a breath of rose-amber, then the
+  // deep strait blue. The middle stops earn the "light gathering" promise.
+  const skyColor = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.55, 0.8, 1],
+    ['#fffaf0', '#f9e4ba', '#f3b56e', '#d98f68', '#4f8fd2']
+  );
   const skySaturation = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1.1, 1.25]);
   const hazeOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.65, 0.35, 0.2]);
   const seaOpacity = useTransform(scrollYProgress, [0.62, 1], [0, 0.95]);
@@ -32,6 +39,19 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
   const shimmerTravel = useTransform(scrollYProgress, [0, 1], ['-8%', '10%']);
   const skySatFilter = useTransform(skySaturation, (v) => `saturate(${v})`);
   const ridgeParallax = useTransform(scrollYProgress, [0, 1], ['-2%', '4%']);
+
+  // The strait is the peak: the sea rises and widens as the journey closes.
+  const seaHeight = useTransform(scrollYProgress, [0.8, 1], ['39%', '46%']);
+  // Gathered gold at the waterline, arriving with the strait.
+  const goldOpacity = useTransform(scrollYProgress, [0.72, 0.95], [0, 0.5]);
+
+  // Stillness at the strait earns the far shore. It stays a faint, ambiguous
+  // silhouette - haze, a cloud bank, the implied coast - never explicit.
+  const [straitness, setStraitness] = useState(0);
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    setStraitness(Math.max(0, Math.min(1, (v - 0.78) / 0.17)));
+  });
+  const shoreOpacity = straitness * Math.min(lingerMs / 4500, 1) * 0.5;
 
   const lingerStrength = Math.min(lingerMs / 9000, 1);
   const glowOpacity = 0.2 + lingerStrength * 0.45;
@@ -176,10 +196,12 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
         style={{ background: 'radial-gradient(circle at 50% 41%, rgba(255,166,86,0.45), rgba(255,195,130,0.16) 38%, transparent 70%)' }}
       />
 
-      {/* Sea body with reflective stripes */}
+      {/* Sea body: rises, widens and breathes as the strait nears */}
       <Motion.div
-        className="absolute bottom-0 left-0 right-0 h-[39%] pointer-events-none"
-        style={{ opacity: seaOpacity, y: seaShift }}
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{ opacity: seaOpacity, y: seaShift, height: seaHeight, transformOrigin: '50% 100%' }}
+        animate={{ scaleY: [1, 1.018, 1] }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-[#8cc8ef]/55 via-[#4f9dd3]/70 to-[#1f568a]/82" />
         <Motion.svg className="absolute inset-0 w-full h-full" viewBox="0 0 420 120" preserveAspectRatio="none">
@@ -204,6 +226,36 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
             />
           ))}
         </Motion.svg>
+
+        {/* Gathered gold at the waterline - the light the journey collected */}
+        <Motion.div
+          className="absolute left-[6%] right-[6%] -top-[9%] h-[18%] pointer-events-none"
+          style={{
+            opacity: goldOpacity,
+            filter: 'blur(10px)',
+            background: 'linear-gradient(to top, rgba(255,196,120,0.45), transparent)'
+          }}
+        >
+          <Motion.div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to top, rgba(255,214,150,0.45), transparent)' }}
+            animate={{ opacity: [0.65, 1, 0.65] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </Motion.div>
+
+        {/* The implied far shore: stillness alone reveals it, and it stays a rumor */}
+        <Motion.div
+          className="absolute left-[14%] right-[14%] -top-[3.5%] h-[6%] pointer-events-none"
+          animate={{ opacity: shoreOpacity }}
+          transition={{ duration: 2.8, ease: 'easeOut' }}
+          style={{
+            filter: 'blur(4px)',
+            borderRadius: '999px',
+            background:
+              'linear-gradient(to right, transparent 6%, rgba(70,84,104,0.5) 28%, rgba(70,84,104,0.58) 52%, rgba(70,84,104,0.48) 74%, transparent 96%)'
+          }}
+        />
       </Motion.div>
     </Motion.div>
   );
