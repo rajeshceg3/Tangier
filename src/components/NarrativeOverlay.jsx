@@ -23,10 +23,15 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
   const handleFocus = handleMouseEnter;
   const handleBlur = handleMouseLeave;
 
+  // Phones get the full measure of the line; the desktop keeps its
+  // left/right composition. Alignment lives in classes so it can respond.
+  const alignClasses =
+    item.alignment === 'left' ? 'left-[8%] w-[84%] md:left-[15%] md:w-auto md:max-w-xs' :
+    item.alignment === 'right' ? 'left-[8%] w-[84%] md:left-[65%] md:w-auto md:max-w-xs' :
+    'left-1/2 -translate-x-1/2 w-[84%] md:w-auto md:max-w-xs';
+
   const style = {
     top: `${item.position * 100}%`,
-    left: item.alignment === 'left' ? '15%' : item.alignment === 'right' ? '65%' : '50%',
-    transform: item.alignment === 'center' ? 'translateX(-50%)' : 'none',
     textAlign: item.alignment === 'center' ? 'center' : 'left',
   };
 
@@ -52,7 +57,7 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
   return (
     <Motion.div
       ref={ref}
-      className={`absolute max-w-xs ${hasAnnotation ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
+      className={`absolute ${alignClasses} ${hasAnnotation ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
       style={style}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: show ? Math.min(targetOpacity + lingerBoost, 1) : 0, y: show ? 0 : 20 }}
