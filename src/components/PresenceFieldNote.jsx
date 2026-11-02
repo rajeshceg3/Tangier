@@ -19,11 +19,11 @@ export default function PresenceFieldNote({ lingerMs, zone }) {
       {shouldShow && (
         <Motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.55 }}
+          animate={{ opacity: 0.65 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 2, ease: 'easeOut' }}
           className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 mx-auto w-fit max-w-[86vw] z-40 text-center text-[10px] uppercase tracking-[0.28em] text-[#12355a] pointer-events-none"
-          style={{ textShadow: '0 0 12px rgba(255,252,244,0.95), 0 0 4px rgba(255,252,244,0.9)' }}
+
         >
           {note}
         </Motion.div>
