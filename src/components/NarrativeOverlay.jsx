@@ -28,7 +28,8 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
   const alignClasses =
     item.alignment === 'left' ? 'left-[8%] w-[84%] md:left-[15%] md:w-auto md:max-w-xs' :
     item.alignment === 'right' ? 'left-[8%] w-[84%] md:left-[65%] md:w-auto md:max-w-xs' :
-    'left-1/2 -translate-x-1/2 w-[84%] md:w-auto md:max-w-xs';
+    // Centered by margin, not transform: framer-motion owns the inline transform.
+    'left-0 right-0 mx-auto w-[84%] md:w-fit md:max-w-xs';
 
   const style = {
     top: `${item.position * 100}%`,
