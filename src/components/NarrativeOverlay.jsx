@@ -34,12 +34,14 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
   const style = {
     top: `${item.position * 100}%`,
     textAlign: item.alignment === 'center' ? 'center' : 'left',
+    // A breath of paper behind the ink, so the poem reads over water or sky.
+    textShadow: '0 0 16px rgba(255,252,244,0.9), 0 0 4px rgba(255,252,244,0.95)',
   };
 
   const hasAnnotation = !!item.annotation;
 
   const baseClasses =
-    item.type === 'faint' ? 'text-sm text-[#275c8f] tracking-widest uppercase font-medium' :
+    item.type === 'faint' ? 'text-sm text-[#123a5c] tracking-widest uppercase font-medium' :
     item.type === 'marginalia' ? 'text-xs text-muted-indigo italic border-l-2 border-soft-dusk-amber pl-4' :
     item.type === 'heading' ? 'text-2xl text-muted-indigo font-medium tracking-[0.2em] uppercase' :
     item.type === 'emphasis' ? 'text-xl text-muted-indigo font-semibold leading-relaxed' :
