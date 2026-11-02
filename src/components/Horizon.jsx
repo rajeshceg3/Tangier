@@ -30,6 +30,7 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
   const y = useTransform(mouseY, [-1, 1], ['-2%', '2%']);
 
   const shimmerTravel = useTransform(scrollYProgress, [0, 1], ['-8%', '10%']);
+  const skySatFilter = useTransform(skySaturation, (v) => `saturate(${v})`);
   const ridgeParallax = useTransform(scrollYProgress, [0, 1], ['-2%', '4%']);
 
   const lingerStrength = Math.min(lingerMs / 9000, 1);
@@ -43,7 +44,7 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
         className="absolute inset-0 w-full h-full pointer-events-none"
         viewBox="0 0 420 220"
         preserveAspectRatio="none"
-        style={{ opacity: hazeOpacity, filter: skySaturation.to((v) => `saturate(${v})`) }}
+        style={{ opacity: hazeOpacity, filter: skySatFilter }}
       >
         <defs>
           <radialGradient id="dawn-bloom" cx="52%" cy="38%" r="58%">
