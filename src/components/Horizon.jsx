@@ -43,7 +43,7 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
   // The strait is the peak: the sea rises and widens as the journey closes.
   const seaHeight = useTransform(scrollYProgress, [0.8, 1], ['39%', '46%']);
   // Gathered gold at the waterline, arriving with the strait.
-  const goldOpacity = useTransform(scrollYProgress, [0.72, 0.95], [0, 0.6]);
+  const goldOpacity = useTransform(scrollYProgress, [0.72, 0.95], [0, 0.5]);
 
   // Stillness at the strait earns the far shore. It stays a faint, ambiguous
   // silhouette - haze, a cloud bank, the implied coast - never explicit.
@@ -51,7 +51,7 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     setStraitness(Math.max(0, Math.min(1, (v - 0.78) / 0.17)));
   });
-  const shoreOpacity = straitness * Math.min(lingerMs / 4500, 1) * 0.38;
+  const shoreOpacity = straitness * Math.min(lingerMs / 4500, 1) * 0.5;
 
   const lingerStrength = Math.min(lingerMs / 9000, 1);
   const glowOpacity = 0.2 + lingerStrength * 0.45;
@@ -232,8 +232,8 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
           className="absolute left-[6%] right-[6%] -top-[9%] h-[18%] pointer-events-none"
           style={{
             opacity: goldOpacity,
-            filter: 'blur(6px)',
-            background: 'linear-gradient(to top, rgba(255,196,120,0.6), transparent)'
+            filter: 'blur(10px)',
+            background: 'linear-gradient(to top, rgba(255,196,120,0.45), transparent)'
           }}
         >
           <Motion.div
@@ -246,7 +246,7 @@ export default function Horizon({ mouseX, mouseY, lingerMs }) {
 
         {/* The implied far shore: stillness alone reveals it, and it stays a rumor */}
         <Motion.div
-          className="absolute left-[14%] right-[14%] -top-[2.5%] h-[5%] pointer-events-none"
+          className="absolute left-[14%] right-[14%] -top-[3.5%] h-[6%] pointer-events-none"
           animate={{ opacity: shoreOpacity }}
           transition={{ duration: 2.8, ease: 'easeOut' }}
           style={{
