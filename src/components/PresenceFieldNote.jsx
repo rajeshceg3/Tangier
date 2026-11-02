@@ -1,12 +1,5 @@
 import { AnimatePresence, motion as Motion } from 'framer-motion';
 
-const ABSOLUTE_DELIGHT_CONDITIONS = [
-  'Instant clarity: the world answers immediately when you arrive.',
-  'Effortless agency: every gesture yields a graceful response.',
-  'Growing reward: stillness and curiosity reveal richer layers.',
-  'Emotional safety: no abrupt shocks, no clutter, no dead ends.'
-];
-
 const getFieldNote = (zone) => {
   if (zone < 0.2) return 'Pause. Let the horizon settle before you descend.';
   if (zone < 0.45) return 'The slope carries sound before it carries thought.';
@@ -15,32 +8,24 @@ const getFieldNote = (zone) => {
   return 'At the strait, silence becomes the final guide.';
 };
 
-const getAbsoluteYesCue = (inactiveMs, hasInteracted) => {
-  if (!hasInteracted && inactiveMs > 2600) {
-    return 'Move gently: the horizon listens before it speaks.';
-  }
-  if (inactiveMs > 4200) {
-    return ABSOLUTE_DELIGHT_CONDITIONS[2];
-  }
-  return null;
-};
-
-export default function PresenceFieldNote({ lingerMs, zone, hasInteracted, inactiveMs }) {
-  const shouldShow = lingerMs >= 3500;
+export default function PresenceFieldNote({ lingerMs, zone }) {
+  // Quiet by default: the note is earned by long stillness, carries no
+  // chrome, and reads as a caption to the scene rather than an instruction.
+  const shouldShow = lingerMs >= 8000;
   const note = getFieldNote(zone);
-  const delightCue = getAbsoluteYesCue(inactiveMs, hasInteracted);
 
   return (
     <AnimatePresence>
-      {(shouldShow || delightCue) && (
+      {shouldShow && (
         <Motion.div
-          initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-          transition={{ duration: 1.2, ease: 'easeOut' }}
-          className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] md:bottom-8 left-1/2 z-40 -translate-x-1/2 max-w-[86vw] px-4 py-2 text-center text-[11px] uppercase tracking-[0.22em] text-[#0f2940] bg-chalk-white/75 border border-[#1e3651]/20 rounded-sm shadow-sm pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.55 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 2, ease: 'easeOut' }}
+          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 mx-auto w-fit max-w-[86vw] z-40 text-center text-[10px] uppercase tracking-[0.28em] text-[#12355a] pointer-events-none"
+          style={{ textShadow: '0 0 12px rgba(255,252,244,0.95), 0 0 4px rgba(255,252,244,0.9)' }}
         >
-          {delightCue || note}
+          {note}
         </Motion.div>
       )}
     </AnimatePresence>
