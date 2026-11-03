@@ -38,12 +38,15 @@ const NarrativeItem = ({ item, isScrolling, lingerMs, onHoverChange }) => {
 
   const hasAnnotation = !!item.annotation;
 
+  // One voice, real hierarchy: the poem speaks in Fraunces at confident
+  // sizes; quiet comes from color and weight, not from whisper-small type.
+  // Inter survives only in the documentary marginalia.
   const baseClasses =
-    item.type === 'faint' ? 'text-sm text-[#0e2f4c] tracking-widest uppercase font-medium' :
-    item.type === 'marginalia' ? 'text-xs text-muted-indigo italic border-l-2 border-soft-dusk-amber pl-4' :
-    item.type === 'heading' ? 'text-2xl text-muted-indigo font-medium tracking-[0.2em] uppercase' :
-    item.type === 'emphasis' ? 'text-xl text-muted-indigo font-semibold leading-relaxed' :
-    'text-lg text-muted-indigo font-normal leading-relaxed'; // body
+    item.type === 'faint' ? 'font-display italic font-light text-xl md:text-2xl text-[#0e2f4c] leading-snug' :
+    item.type === 'marginalia' ? 'text-sm text-muted-indigo italic border-l-2 border-soft-dusk-amber pl-4 leading-relaxed' :
+    item.type === 'heading' ? 'font-display font-normal text-5xl md:text-7xl text-muted-indigo leading-none tracking-tight' :
+    item.type === 'emphasis' ? 'font-display font-medium text-3xl md:text-4xl text-muted-indigo leading-tight' :
+    'font-display font-normal text-2xl md:text-3xl text-muted-indigo leading-snug'; // body
 
   // Target opacity based on type (removed opacity classes from baseClasses to control here)
   const targetOpacity = item.type === 'faint' ? 0.75 :
