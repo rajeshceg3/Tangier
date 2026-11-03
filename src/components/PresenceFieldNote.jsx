@@ -22,7 +22,7 @@ export default function PresenceFieldNote({ lingerMs, zone }) {
           animate={{ opacity: 0.65 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 2, ease: 'easeOut' }}
-          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 mx-auto w-fit max-w-[86vw] z-40 text-center text-[10px] uppercase tracking-[0.28em] text-[#12355a] pointer-events-none"
+          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 mx-auto w-fit max-w-[86vw] z-40 text-center font-display italic font-light text-sm md:text-base text-[#12355a] pointer-events-none"
 
         >
           {note}

@@ -14,7 +14,8 @@ export default {
         'soft-dusk-amber': '#ff9f43',
       },
       fontFamily: {
-        sans: ['"Inter"', 'sans-serif'], // Placeholder for Humanist sans-serif
+        sans: ['"Inter"', 'sans-serif'],
+        display: ['"Fraunces"', 'Georgia', 'serif'],
       },
     },
   },
