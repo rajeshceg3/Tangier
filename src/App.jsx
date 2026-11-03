@@ -125,11 +125,19 @@ export default function App() {
     };
   }, []);
 
+  // Zone tracking must never depend on audio: silent or blocked-audio
+  // visitors still deserve the narrative state that matches where they are.
+  useEffect(() => {
+    const unsubscribeZone = scrollYProgress.on('change', (latest) => {
+      setZoneProgress(latest);
+    });
+    return () => unsubscribeZone();
+  }, [scrollYProgress]);
+
   useEffect(() => {
     if (!audioControls) return;
 
     const unsubscribeProgress = scrollYProgress.on('change', (latest) => {
-      setZoneProgress(latest);
 
       // Wind: Strongest at top (0) and bottom (1), quieter in Medina (0.3-0.7)
       // Modulation: 0.05 min to 0.2 max
