@@ -15,14 +15,14 @@ export const narrative = [
   },
   {
     id: 'orientation-1',
-    text: 'The pull between Africa and Europe.',
+    text: 'The city tilts toward the water.',
     position: 0.20,
     alignment: 'left',
     type: 'body'
   },
   {
     id: 'orientation-2',
-    text: 'The slow drift of salt air.',
+    text: 'Salt air climbs the slope to meet you.',
     position: 0.25,
     alignment: 'right',
     type: 'body'
@@ -36,7 +36,7 @@ export const narrative = [
   },
   {
     id: 'medina-2',
-    text: 'Time is suspended between departures.',
+    text: 'Everything here is passing through.',
     position: 0.50,
     alignment: 'left',
     type: 'body'
@@ -81,7 +81,7 @@ export const narrative = [
   },
   {
     id: 'end',
-    text: 'Presence.',
+    text: 'Stay until the far shore finds you.',
     position: 0.98,
     alignment: 'center',
     type: 'faint'
