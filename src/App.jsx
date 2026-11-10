@@ -1,283 +1,153 @@
-import { useEffect, useState, useRef } from 'react';
-import { useScroll, useMotionValue, useSpring, AnimatePresence, motion as Motion, useReducedMotion } from 'framer-motion';
-import Horizon from './components/Horizon';
-import MedinaLayers from './components/MedinaLayers';
-import NarrativeOverlay from './components/NarrativeOverlay';
-import PresenceFieldNote from './components/PresenceFieldNote';
-import { setupAudio } from './audio';
-
-const LIGHT_GATHERING_DURATION_MS = 2000;
-const LINGER_TIMEOUT_MS = 300;
-const OVERLAY_FADE_DURATION_S = 2.5;
-
+import { useEffect, useRef, useState } from "react";
+import { createWorld, chapters } from "./world";
+import "./App.css";
 export default function App() {
-  const [audioControls, setAudioControls] = useState(null);
-  const { scrollY, scrollYProgress } = useScroll();
-  const lastStepY = useRef(0);
-  const [zoneProgress, setZoneProgress] = useState(0);
-  const prefersReducedMotion = useReducedMotion();
-
-  // Mouse tracking for parallax
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = prefersReducedMotion
-    ? { damping: 80, stiffness: 240, mass: 0.9 }
-    : { damping: 50, stiffness: 100, mass: 0.5 };
-  const smoothMouseX = useSpring(mouseX, springConfig);
-  const smoothMouseY = useSpring(mouseY, springConfig);
-
-  const handleMouseMove = (e) => {
-    // Normalize coordinates from -1 to 1 based on screen center
-    const x = (e.clientX / window.innerWidth) * 2 - 1;
-    const y = (e.clientY / window.innerHeight) * 2 - 1;
-    mouseX.set(x);
-    mouseY.set(y);
-  };
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [lingerMs, setLingerMs] = useState(0);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [inactiveMs, setInactiveMs] = useState(0);
-  const lastInteractionAt = useRef(0);
-
-  const markInteraction = () => {
-    lastInteractionAt.current = Date.now();
-    setInactiveMs(0);
-    setHasInteracted(true);
-  };
-
-  // Initial "Light Gathering" loading state
+  const canvas = useRef(),
+    world = useRef();
+  const [chapter, setChapter] = useState(0),
+    [paused, setPaused] = useState(
+      matchMedia("(prefers-reduced-motion:reduce)").matches,
+    ),
+    [sound, setSound] = useState(false),
+    [error, setError] = useState("");
+  const notes = useRef();
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, LIGHT_GATHERING_DURATION_MS); // 2 seconds of "gathering light"
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Linger tracking: reward stillness with deeper reveals
-  useEffect(() => {
-    if (isScrolling) {
-      return undefined;
+    try {
+      world.current = createWorld(canvas.current);
+      return () => world.current.dispose();
+    } catch (e) {
+      queueMicrotask(() => setError(e.message));
     }
-
-    const interval = setInterval(() => {
-      setLingerMs((prev) => Math.min(prev + 150, 9000));
-    }, 150);
-
-    return () => clearInterval(interval);
-  }, [isScrolling]);
-
-  useEffect(() => {
-    lastInteractionAt.current = Date.now();
-    const interval = setInterval(() => {
-      setInactiveMs(Date.now() - lastInteractionAt.current);
-    }, 250);
-
-    return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    const handleInteraction = async () => {
-      if (audioControls) return;
-
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const context = new AudioContext();
-      await context.resume();
-
-      const controls = setupAudio(context);
-      setAudioControls(controls);
-
-      // Start wind softly
-      controls.setWindVolume(0.05);
-
-      // Remove listener
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
-      window.removeEventListener('keydown', handleInteraction);
-    };
-
-    window.addEventListener('click', handleInteraction);
-    window.addEventListener('scroll', handleInteraction);
-    window.addEventListener('keydown', handleInteraction);
-
-    return () => {
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
-      window.removeEventListener('keydown', handleInteraction);
-    };
-  }, [audioControls]);
-
-  useEffect(() => {
-    const handleWindowMove = () => markInteraction();
-    const handleWindowScroll = () => markInteraction();
-    const handleWindowKeyDown = () => markInteraction();
-
-    window.addEventListener('mousemove', handleWindowMove);
-    window.addEventListener('scroll', handleWindowScroll);
-    window.addEventListener('keydown', handleWindowKeyDown);
-
-    return () => {
-      window.removeEventListener('mousemove', handleWindowMove);
-      window.removeEventListener('scroll', handleWindowScroll);
-      window.removeEventListener('keydown', handleWindowKeyDown);
-    };
-  }, []);
-
-  // Zone tracking must never depend on audio: silent or blocked-audio
-  // visitors still deserve the narrative state that matches where they are.
-  useEffect(() => {
-    const unsubscribeZone = scrollYProgress.on('change', (latest) => {
-      setZoneProgress(latest);
-    });
-    return () => unsubscribeZone();
-  }, [scrollYProgress]);
-
-  useEffect(() => {
-    if (!audioControls) return;
-
-    const unsubscribeProgress = scrollYProgress.on('change', (latest) => {
-
-      // Wind: Strongest at top (0) and bottom (1), quieter in Medina (0.3-0.7)
-      // Modulation: 0.05 min to 0.2 max
-      const windIntensity = 0.05 + (Math.abs(latest - 0.5) * 0.15);
-      const stillnessLift = isScrolling ? 0 : Math.min(lingerMs / 9000, 0.05);
-      audioControls.setWindVolume(windIntensity + stillnessLift);
-
-      // Sea: Silent at top, grows as we descend (starts at 0.5, max at 1.0)
-      const seaVol = latest > 0.5 ? (latest - 0.5) * 0.4 : 0;
-      audioControls.setSeaVolume(seaVol);
-
-      // Modulate wind filter based on openness (top and bottom are open)
-      // 0 -> Open (1.0), 0.5 -> Closed (0.0), 1 -> Open (1.0)
-      const openness = Math.abs(latest - 0.5) * 2;
-      audioControls.modulateWind(openness);
-
-      // Occasional Horn at the Strait (near bottom)
-      if (latest > 0.8 && Math.random() > 0.995) {
-        audioControls.playHorn();
-      }
-    });
-
-    const unsubscribeScroll = scrollY.on('change', (latestY) => {
-      // Handle isScrolling state
-      setIsScrolling(true);
-      setLingerMs(0);
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-      scrollTimeout.current = setTimeout(() => {
-        setIsScrolling(false);
-      }, LINGER_TIMEOUT_MS); // 300ms pause to consider "lingering"
-
-      const dist = Math.abs(latestY - lastStepY.current);
-      // Trigger step every ~150px
-      if (dist > 150) {
-        const progress = scrollYProgress.get();
-        // Footsteps only in the Medina (roughly 15% to 85%)
-        if (progress > 0.15 && progress < 0.85) {
-          const vol = 0.2 + Math.random() * 0.3;
-          audioControls.triggerFootstep(vol);
-          lastStepY.current = latestY;
-        }
-      }
-    });
-
-    return () => {
-      unsubscribeProgress();
-      unsubscribeScroll();
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-    };
-  }, [audioControls, scrollY, scrollYProgress, isScrolling, lingerMs]);
-
-  // Ambient Gulls - Sparse and distant
-  useEffect(() => {
-    if (!audioControls) return;
-
-    let timer;
-    const loop = () => {
-      // 10 to 25 seconds between potential calls
-      const delay = 10000 + Math.random() * 15000;
-      timer = setTimeout(() => {
-        const progress = scrollYProgress.get();
-        // Higher probability near the sea (bottom)
-        const chance = 0.3 + (progress * 0.4);
-
-        if (Math.random() < chance) {
-          // Volume increases slightly near sea
-          const vol = 0.05 + (progress * 0.1) + (Math.random() * 0.05);
-          audioControls.playGull(vol);
-        }
-        loop();
-      }, delay);
-    };
-
-    loop();
-    return () => clearTimeout(timer);
-  }, [audioControls, scrollYProgress]);
-
-  // Ambient Call to Prayer - Very rare, distant
-  useEffect(() => {
-    if (!audioControls) return;
-
-    let timer;
-    const loop = () => {
-      // 45 to 90 seconds between potential calls (very rare)
-      const delay = 45000 + Math.random() * 45000;
-      timer = setTimeout(() => {
-        // Uniform probability across the city, maybe less at sea
-        const progress = scrollYProgress.get();
-        // Higher probability in the Medina (middle)
-        // 0.2 to 0.8 is Medina roughly.
-        let chance = 0.1;
-        if (progress > 0.2 && progress < 0.8) {
-          chance = 0.4;
-        }
-
-        if (Math.random() < chance) {
-          // Faint, distant
-          const vol = 0.1 + (Math.random() * 0.05);
-          audioControls.playPrayer(vol);
-        }
-        loop();
-      }, delay);
-    };
-
-    loop();
-    return () => clearTimeout(timer);
-  }, [audioControls, scrollYProgress]);
-
+  function select(i) {
+    world.current?.chapter(i);
+    setChapter(i);
+  }
   return (
-    <div
-      className="relative w-full h-[800vh] overflow-hidden"
-      onMouseMove={(e) => {
-        handleMouseMove(e);
-        markInteraction();
-      }}
-    >
-      <Horizon mouseX={smoothMouseX} mouseY={smoothMouseY} lingerMs={lingerMs} />
-      <MedinaLayers mouseX={smoothMouseX} mouseY={smoothMouseY} lingerMs={lingerMs} />
-      <NarrativeOverlay isScrolling={isScrolling} lingerMs={lingerMs} />
-      <PresenceFieldNote
-        lingerMs={lingerMs}
-        zone={zoneProgress}
-        hasInteracted={hasInteracted}
-        inactiveMs={inactiveMs}
+    <>
+      <canvas
+        ref={canvas}
+        id="world"
+        tabIndex="0"
+        aria-label="Three-dimensional imagined Tangier medina. Drag or use arrow keys to look around."
       />
-
-      {/* Invisible overlay for texture/tint */}
-      <div className="fixed inset-0 z-50 pointer-events-none bg-black/5 mix-blend-overlay"></div>
-
-      {/* Light Gathering Overlay */}
-      <AnimatePresence>
-        {isLoading && (
-          <Motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: OVERLAY_FADE_DURATION_S, ease: 'easeInOut' }}
-            className="fixed inset-0 z-[100] bg-chalk-white pointer-events-none" // Using chalk-white equivalent
-          />
-        )}
-      </AnimatePresence>
-    </div>
+      <header>
+        <a className="wordmark" href="./">
+          Tangier.
+        </a>
+        <div className="tools">
+          <button
+            id="reset"
+            aria-label="Reset viewpoint"
+            onClick={() => world.current?.reset()}
+          >
+            ↺
+          </button>
+          <button
+            id="pause"
+            aria-label="Pause ambient motion"
+            aria-pressed={paused}
+            onClick={() => {
+              world.current?.pause(!paused);
+              setPaused(!paused);
+            }}
+          >
+            {paused ? "▶" : "Ⅱ"}
+          </button>
+          <button
+            id="sound"
+            aria-label="Toggle sea and wind sound"
+            aria-pressed={sound}
+            onClick={async () => {
+              await world.current?.sound(!sound);
+              setSound(!sound);
+            }}
+          >
+            ♪
+          </button>
+          <button
+            id="about"
+            aria-label="About this world"
+            onClick={() => notes.current.showModal()}
+          >
+            i
+          </button>
+        </div>
+      </header>
+      <div id="compass">Drag to look around</div>
+      <main>
+        <section className="story" aria-live="polite">
+          <p className="eyebrow">MOROCCO · THE THRESHOLD</p>
+          <h1>{chapters[chapter].title}</h1>
+          <p id="line">{chapters[chapter].line}</p>
+        </section>
+        <nav
+          aria-label="Tangier viewpoints"
+          onKeyDown={(e) => {
+            if (["ArrowRight", "ArrowLeft"].includes(e.key)) {
+              e.preventDefault();
+              select((chapter + (e.key === "ArrowRight" ? 1 : 3)) % 4);
+            }
+          }}
+        >
+          {chapters.map((c, i) => (
+            <button
+              key={c.name}
+              data-chapter={i}
+              aria-current={chapter === i}
+              onClick={() => select(i)}
+            >
+              {c.name}
+            </button>
+          ))}
+        </nav>
+      </main>
+      <dialog ref={notes}>
+        <button
+          className="close"
+          aria-label="Close notes"
+          onClick={() => notes.current.close()}
+        >
+          ×
+        </button>
+        <h2>A city between waters.</h2>
+        <p>
+          An original, imagined Tangier: limewashed rooftops, a medina passage,
+          Kasbah-inspired walls and the Strait. This is a spatial illustration,
+          not a surveyed reconstruction, historic record or navigation map.
+        </p>
+        <p>
+          Drag anywhere in the city to look all the way around. Arrow keys turn
+          the view. Reset returns to the best angle for the chosen viewpoint.
+          Motion can be paused. Sound is an optional, synthesized sea-and-wind
+          study, never a field recording.
+        </p>
+        <p>
+          References: the Moroccan National Tourist Office on{" "}
+          <a
+            href="https://www.visitmorocco.com/en/travel/tangier"
+            target="_blank"
+            rel="noopener"
+          >
+            Tangier
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://www.visitmorocco.com/en/travel/tangier/medina"
+            target="_blank"
+            rel="noopener"
+          >
+            its medina
+          </a>
+          . Buildings and street arrangements are illustrative. No tracking.
+        </p>
+      </dialog>
+      {error && (
+        <div role="alert" id="fallback">
+          The city needs WebGL. Try a current browser with hardware
+          acceleration. {error}
+        </div>
+      )}
+    </>
   );
 }
