@@ -1,3 +1,5 @@
+import {createSoundscape} from './soundscape.js';
+import {SOUND_PLACES} from './sound-places.js';
 import * as T from "three";
 export const chapters = [
   {
@@ -543,12 +545,11 @@ export function createWorld(canvas) {
     last = 0,
     dirty = true,
     disposed = false,
-    ctx,
-    noiseNode,
-    gain,
-    master;
+    ctx;
+  const scape=createSoundscape(SOUND_PLACES);
   function chapter(i) {
     ch = i;
+    scape.setPlace(i);
     cityObjects.forEach((o) => (o.visible = i !== 1));
     outerObjects.forEach((o) => (o.visible = i !== 1));
     medinaObjects.forEach((o) => (o.visible = i === 1));
@@ -655,44 +656,19 @@ export function createWorld(canvas) {
   addEventListener("resize", resize);
   const visibility = () => {
     if (document.hidden) ctx?.suspend();
-    else if (gain?.gain.value > 0) ctx?.resume();
+    else if (scape.state.on) ctx?.resume();
   };
   document.addEventListener("visibilitychange", visibility);
   async function sound(on) {
-    if (on && !ctx) {
-      ctx = new AudioContext();
-      let buffer = ctx.createBuffer(2, ctx.sampleRate * 4, ctx.sampleRate);
-      for (let c = 0; c < 2; c++) {
-        let low = 0;
-        const d = buffer.getChannelData(c);
-        for (let i = 0; i < d.length; i++) {
-          low = (low + (Math.random() * 2 - 1) * 0.04) / 1.04;
-          d[i] = low * 2;
-        }
-      }
-      noiseNode = ctx.createBufferSource();
-      noiseNode.buffer = buffer;
-      noiseNode.loop = true;
-      const filter = ctx.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = 650;
-      gain = ctx.createGain();
-      gain.gain.value = 0;
-      master = ctx.createMediaStreamDestination();
-      noiseNode.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      gain.connect(master);
-      noiseNode.start();
-      window.__tangierAudio = { ctx, stream: master.stream };
+    if(on===scape.state.on)return;
+    scape.toggle(ch);
+    ctx=scape.state.ctx;
+    if(ctx){
+      const capture=ctx.createMediaStreamDestination();
+      scape.state.gain.connect(capture);
+      window.__tangierAudio={ctx,stream:capture.stream};
+      await ctx.resume();
     }
-    if (!ctx) return;
-    if (on) await ctx.resume();
-    gain.gain.setTargetAtTime(on ? 0.22 : 0, ctx.currentTime, 0.25);
-    if (!on)
-      setTimeout(() => {
-        if (gain.gain.value < 0.005) ctx.suspend();
-      }, 1800);
   }
   chapter(0);
   resize();
@@ -715,8 +691,7 @@ export function createWorld(canvas) {
       canvas.removeEventListener("pointerup", up);
       canvas.removeEventListener("pointercancel", up);
       canvas.removeEventListener("keydown", key);
-      noiseNode?.stop();
-      ctx?.close();
+      if(scape.state.on)scape.toggle(ch);
       scene.traverse((o) => {
         o.geometry?.dispose();
         if (o.material) {
