@@ -66,7 +66,7 @@ header.chrome:not(.chrome-on) {
   border: 0;
   color: var(--ink);
   filter: drop-shadow(0 2px 2px var(--shadow-ink));
-  animation: hint-sway 3.4s ease-in-out infinite;
+  
   transform-origin: 50% 0;
 }
 .chrome-hint .ink-lantern {
