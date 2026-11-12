@@ -1,4 +1,14 @@
 @font-face {
+  font-family: "Aref Ruqaa";
+  src: url("/fonts/ArefRuqaa-Regular.ttf");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Aref Ruqaa";
+  src: url("/fonts/ArefRuqaa-Bold.ttf");
+  font-weight: 700;
+}
+@font-face {
   font-family: DM;
   src: url("/fonts/font-0.ttf");
 }

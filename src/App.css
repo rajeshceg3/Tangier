@@ -1,3 +1,21 @@
+/* Tangier chrome: limewash paper, sea-ink strokes, glazed zellige amber. */
+:root {
+  --paper: #fff4dd;
+  --paper-soft: #f7ead0;
+  --ink: #16323c;
+  --ink-soft: #2c4a54;
+  --glaze: #ffe0a6;
+  --glaze-deep: #f2c26b;
+  --sea: #1d617d;
+  --shadow-ink: rgba(20, 16, 6, 0.35);
+  --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.app {
+  position: fixed;
+  inset: 0;
+}
+
 #world {
   position: fixed;
   inset: 0;
@@ -9,6 +27,62 @@
 #world:active {
   cursor: grabbing;
 }
+
+/* quiet by default: chrome greets, then retires */
+.chrome {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s;
+}
+.chrome:not(.chrome-on) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+header.chrome:not(.chrome-on) {
+  transform: translateY(-10px);
+}
+#compass.chrome:not(.chrome-on) {
+  transform: translateY(-8px);
+}
+.journey.chrome:not(.chrome-on) {
+  transform: translateY(10px);
+}
+
+/* the hanging lantern: where the controls live */
+.chrome-hint {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  min-height: 64px;
+  padding: 0 14px 6px;
+  background: transparent;
+  border: 0;
+  color: var(--ink);
+  filter: drop-shadow(0 2px 2px var(--shadow-ink));
+  animation: hint-sway 3.4s ease-in-out infinite;
+  transform-origin: 50% 0;
+}
+.chrome-hint .ink-lantern {
+  width: 26px;
+  height: 52px;
+}
+@keyframes hint-sway {
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(-2.4deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(2.4deg);
+  }
+}
+
 header {
   position: fixed;
   left: 20px;
@@ -18,54 +92,80 @@ header {
   justify-content: space-between;
   align-items: start;
   pointer-events: none;
+  z-index: 5;
 }
 .wordmark {
   font:
-    36px/1 Instrument,
+    40px/1 "Aref Ruqaa",
     Georgia,
     serif;
-  color: #fff4dd;
+  color: var(--ink);
   text-decoration: none;
-  padding: 8px 12px;
-  background: #152f38;
-  border: 1px solid #75939a;
-  border-radius: 7px;
+  padding: 6px 16px 10px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 16px 24px 14px 22px / 22px 14px 24px 16px;
+  box-shadow: 3px 4px 0 var(--shadow-ink);
   pointer-events: auto;
 }
 .tools {
   display: flex;
-  gap: 7px;
+  gap: 8px;
   pointer-events: auto;
+  flex-shrink: 0;
 }
+.tools .ink-chip {
+  flex-shrink: 0;
+}
+
 button {
-  color: #fff4dd;
-  border: 1px solid #75939a;
-  background: #152f38;
-  border-radius: 24px;
-  min-width: 44px;
-  min-height: 44px;
+  font: inherit;
+  cursor: pointer;
+  color: var(--ink);
 }
-.tools button {
+.ink-chip {
+  display: grid;
+  place-items: center;
   width: 46px;
   height: 46px;
-  font-size: 21px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 46% 54% 50% 50% / 52% 48% 54% 46%;
+  box-shadow: 3px 4px 0 var(--shadow-ink);
+  transition:
+    transform 0.18s var(--bounce),
+    box-shadow 0.18s ease,
+    background 0.18s ease;
 }
-button:hover {
-  background: #2c4a54;
+.ink-chip:hover {
+  background: var(--paper-soft);
 }
-button[aria-pressed="true"] {
-  background: #ffe0a6;
-  color: #142f38;
+.ink-chip:active {
+  transform: translate(2.5px, 3.5px);
+  box-shadow: 0 1px 0 var(--shadow-ink);
 }
+.ink-chip[aria-pressed="true"] {
+  background: var(--glaze);
+}
+.ink-icon {
+  width: 23px;
+  height: 23px;
+}
+
 #compass {
   position: fixed;
-  top: 82px;
+  top: 86px;
   right: 20px;
+  z-index: 5;
   font-size: 16px;
-  background: #152f38;
-  padding: 7px 10px;
-  border-radius: 5px;
+  color: var(--ink);
+  background: var(--paper);
+  padding: 7px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 12px 18px 10px 16px / 16px 10px 18px 12px;
+  box-shadow: 2px 3px 0 var(--shadow-ink);
 }
+
 main {
   position: fixed;
   left: 20px;
@@ -76,58 +176,154 @@ main {
   justify-content: space-between;
   gap: 24px;
   pointer-events: none;
+  z-index: 5;
 }
+
+/* the register page: what this place is */
 .story {
   pointer-events: auto;
-  border: 1px solid #75939a;
-  background: #152f38;
-  padding: 18px 22px;
-  border-radius: 8px;
+  border: 2.5px solid var(--ink);
+  background: var(--paper);
+  padding: 16px 22px 18px;
+  border-radius: 14px 22px 12px 20px / 20px 12px 22px 14px;
+  box-shadow: 4px 5px 0 var(--shadow-ink);
   width: 390px;
   max-width: 42vw;
+  color: var(--ink);
 }
 .eyebrow {
   font-size: 16px;
   margin: 0 0 8px;
-  color: #ffe0a6;
+  color: var(--sea);
+  font-weight: 600;
 }
 h1 {
   font:
-    44px/1.02 Instrument,
+    46px/1.04 "Aref Ruqaa",
     Georgia,
     serif;
   margin: 0 0 10px;
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
+  color: var(--ink);
 }
 #line {
   font-size: 16px;
   line-height: 1.45;
   margin: 0;
 }
-nav {
+
+/* the medina alley: zellige tiles strung along a dotted path */
+.journey {
   display: flex;
-  gap: 7px;
-  pointer-events: auto;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
   max-width: 650px;
   width: 48%;
+  pointer-events: auto;
+}
+nav {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding-top: 10px;
+}
+nav::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 0;
+  border-top: 3px dotted var(--ink);
+  opacity: 0.75;
 }
 nav button {
   flex: 1;
-  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
   min-height: 64px;
   font-size: 16px;
-  line-height: 1.3;
+  line-height: 1.25;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 14px 20px 12px 18px / 18px 12px 20px 14px;
+  box-shadow: 3px 4px 0 var(--shadow-ink);
+  transition:
+    transform 0.18s var(--bounce),
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+nav button:nth-child(even) {
+  border-radius: 18px 12px 20px 14px / 12px 20px 14px 18px;
+}
+nav button:hover {
+  background: var(--paper-soft);
+}
+nav button:active {
+  transform: translate(2.5px, 3.5px);
+  box-shadow: 0 1px 0 var(--shadow-ink);
 }
 nav button[aria-current="true"] {
-  background: #ffe0a6;
-  color: #152f38;
-  border-color: #ffe0a6;
+  background: var(--glaze);
+  border-color: var(--ink);
 }
+nav button .ink-icon {
+  width: 26px;
+  height: 26px;
+}
+
+/* one bright action, quiet ghosts beside it */
+.walk-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.hand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2.5px solid var(--ink);
+  border-radius: 16px 22px 14px 20px / 20px 14px 22px 16px;
+  box-shadow: 3px 4px 0 var(--shadow-ink);
+  transition:
+    transform 0.18s var(--bounce),
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+.hand-btn:active {
+  transform: translate(2.5px, 3.5px);
+  box-shadow: 0 1px 0 var(--shadow-ink);
+}
+.hand-btn--primary {
+  background: var(--glaze);
+  flex: 1;
+  max-width: 260px;
+}
+.hand-btn--primary:hover {
+  background: var(--glaze-deep);
+}
+.hand-btn--ghost {
+  background: var(--paper);
+}
+.hand-btn--ghost:hover {
+  background: var(--paper-soft);
+}
+
 dialog {
-  background: #152f38;
-  color: #fff4dd;
-  border: 1px solid #8da5aa;
-  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2.5px solid var(--ink);
+  border-radius: 16px 22px 14px 20px / 20px 14px 22px 16px;
+  box-shadow: 5px 6px 0 var(--shadow-ink);
   width: min(540px, calc(100% - 30px));
   padding: 26px;
   max-height: 80dvh;
@@ -140,52 +336,68 @@ dialog::backdrop {
 }
 dialog h2 {
   font:
-    38px Instrument,
+    40px "Aref Ruqaa",
+    Georgia,
     serif;
   margin: 10px 0;
 }
 dialog a {
-  color: #ffe0a6;
+  color: var(--sea);
   display: inline-block;
   min-height: 44px;
+  font-weight: 600;
 }
 .close {
   float: right;
   font-size: 24px;
+  min-width: 44px;
+  min-height: 44px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 46% 54% 50% 50% / 52% 48% 54% 46%;
 }
 #fallback {
   position: fixed;
   inset: 100px 20px;
-  background: #152f38;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
   padding: 20px;
   font-size: 18px;
+  z-index: 7;
 }
+
 @media (max-width: 600px) {
   header {
-    top: 16px;
-    left: 14px;
-    right: 14px;
+    top: 14px;
+    left: 12px;
+    right: 12px;
   }
   .wordmark {
-    font-size: 29px;
-    padding: 8px 10px;
+    font-size: 27px;
+    padding: 5px 10px 8px;
   }
   .tools {
-    gap: 5px;
+    gap: 4px;
   }
-  .tools button {
+  .ink-chip {
     width: 44px;
     height: 44px;
   }
+  .ink-icon {
+    width: 21px;
+    height: 21px;
+  }
   #compass {
-    top: 75px;
+    top: 72px;
     right: 14px;
   }
   main {
     display: block;
     left: 14px;
     right: 14px;
-    bottom: max(16px, env(safe-area-inset-bottom));
+    bottom: max(14px, env(safe-area-inset-bottom));
   }
   .story {
     width: 100%;
@@ -200,9 +412,12 @@ dialog a {
   .eyebrow {
     margin-bottom: 6px;
   }
-  nav {
+  .journey {
     width: 100%;
     max-width: none;
+    gap: 8px;
+  }
+  nav {
     gap: 5px;
   }
   nav button {
@@ -212,12 +427,12 @@ dialog a {
 }
 @media (max-width: 350px) {
   .wordmark {
-    font-size: 25px;
-    padding: 10px 7px;
+    font-size: 23px;
+    padding: 5px 8px 7px;
   }
   header {
-    left: 10px;
-    right: 10px;
+    left: 8px;
+    right: 8px;
   }
   .tools {
     gap: 3px;
@@ -229,10 +444,14 @@ dialog a {
   h1 {
     font-size: 30px;
   }
+  nav button {
+    font-size: 16px;
+    padding: 8px 2px;
+  }
 }
 @media (max-height: 540px) and (min-width: 601px) {
   h1 {
-    font-size: 30px;
+    font-size: 32px;
   }
   .eyebrow {
     display: none;
@@ -244,5 +463,14 @@ dialog a {
 @media (prefers-reduced-motion: reduce) {
   * {
     scroll-behavior: auto !important;
+  }
+  .chrome,
+  .ink-chip,
+  .hand-btn,
+  nav button {
+    transition: none;
+  }
+  .chrome-hint {
+    animation: none;
   }
 }
