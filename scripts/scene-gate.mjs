@@ -37,12 +37,30 @@ try {
       await p.emulateMediaFeatures([
         { name: "prefers-reduced-motion", value: motion },
       ]);
+      // pin-first: pin lands before the app boots, chrome stays up for the drive
+      await p.evaluateOnNewDocument(() => {
+        try {
+          localStorage.setItem("tangier-chrome-pin", "1");
+        } catch {}
+      });
       await p.goto(url);
       await p.waitForFunction(
         () => document.querySelector("canvas")?.dataset.yaw,
       );
       await p.evaluate(() => document.fonts.ready);
+      assert.equal(
+        await p.$eval("#pin-controls", (e) => e.getAttribute("aria-pressed")),
+        "true",
+      );
+      assert.ok(
+        await p.$eval(
+          "#sound",
+          (e) => getComputedStyle(e).visibility === "visible",
+        ),
+        "pinned chrome stays visible",
+      );
       if (motion === "no-preference") await p.click("#pause");
+      if (process.env.PINNED !== "0") {
       for (let ch = 0; ch < 4; ch++) {
         await p.click(`nav [data-chapter="${ch}"]`);
         await new Promise((r) => setTimeout(r, 300));
@@ -101,7 +119,73 @@ try {
       await p.keyboard.press("Escape");
       assert.equal(await p.$eval("dialog", (e) => e.open), false);
       assert.deepEqual(errors, []);
+      }
       await p.close();
+      // quiet-by-default pass: no pin, chrome greets then retires, the lantern remains
+      if (process.env.QUIET !== "0") {
+        const q = await browser.newPage();
+        const qerrors = [];
+        q.on("pageerror", (e) => qerrors.push(String(e)));
+        await q.setViewport({ width: w, height: 844 });
+        await q.emulateMediaFeatures([
+          { name: "prefers-reduced-motion", value: motion },
+        ]);
+        await q.evaluateOnNewDocument(() => {
+          try {
+            localStorage.removeItem("tangier-chrome-pin");
+          } catch {}
+        });
+        await q.goto(url);
+        await q.waitForFunction(
+          () => document.querySelector("canvas")?.dataset.yaw,
+        );
+        await new Promise((r) => setTimeout(r, 3400));
+        assert.ok(
+          await q.$(".chrome-hint"),
+          "chrome retired and the lantern hint is showing",
+        );
+        assert.ok(
+          await q.$eval(
+            "#sound",
+            (e) => getComputedStyle(e).visibility === "hidden",
+          ),
+          "toolbar retired",
+        );
+        assert.ok(
+          await q.$eval(
+            ".story",
+            (e) => getComputedStyle(e).visibility === "visible",
+          ),
+          "story card never retires",
+        );
+        const hb = await q.$eval(".chrome-hint", (e) => {
+          const r = e.getBoundingClientRect();
+          return { w: r.width, h: r.height };
+        });
+        assert.ok(hb.w >= 44 && hb.h >= 44, "hint keeps a 44px hit area");
+        await q.screenshot({ path: `${out}/${w}-${motion}-quiet.png` });
+        await q.click(".chrome-hint");
+        await new Promise((r) => setTimeout(r, 400));
+        assert.ok(
+          await q.$eval(
+            "#sound",
+            (e) => getComputedStyle(e).visibility === "visible",
+          ),
+          "hint woke the controls",
+        );
+        await q.screenshot({ path: `${out}/${w}-${motion}-woken.png` });
+        await q.keyboard.press("Escape");
+        await new Promise((r) => setTimeout(r, 400));
+        assert.ok(
+          await q.$eval(
+            "#sound",
+            (e) => getComputedStyle(e).visibility === "hidden",
+          ),
+          "Escape retired the controls",
+        );
+        assert.deepEqual(qerrors, []);
+        await q.close();
+      }
       fs.writeFileSync(out + "/results.json", JSON.stringify(results, null, 2));
       console.log("PASS", w, motion);
     }
